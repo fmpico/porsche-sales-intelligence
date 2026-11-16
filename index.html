@@ -1054,7 +1054,7 @@ body.is-dark-zone { background: #494949; }
 .hero-banner { position: relative; margin-top: 36px; height: 420px; overflow: hidden; background: #0d0d0d; }
 .hero-banner::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(13,13,13,0.95) 0%, rgba(13,13,13,0.7) 40%, rgba(13,13,13,0.2) 70%, rgba(13,13,13,0.1) 100%); pointer-events: none; }
 .hero-slides { position: absolute; inset: 0; z-index: 0; }
-.hero-car { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; background: #0d0d0d; }
+.hero-car { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; object-fit: contain; background: #0d0d0d; }
 .hero-slide.is-active { opacity: 1; visibility: visible; }
 .hero-fallback { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: #FFFFFF; font-size: 0.9rem; z-index: 0; }
 .hero-car.is-active, .hero-slide.is-active { opacity: 1; visibility: visible; }
@@ -1066,7 +1066,7 @@ body.is-dark-zone { background: #494949; }
 .hero-caption { background: rgba(0,0,0,0.6); }
 .hero-sub { font-size: 13px; font-weight: 400; color: #FFFFFF; margin: 0; font-family: 'Inter', sans-serif; line-height: 1.6; }
 .hero-line { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #D5001C; z-index: 3; }
-.hero-slide { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; }
+.hero-slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; }
 .hero-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; background: rgba(0,0,0,0.35); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 1.1rem; line-height: 1; }
 .hero-prev { left: 8px; }
 .hero-next { right: 8px; }
@@ -1175,8 +1175,9 @@ body { background: #fff; }
 <div class="hero-banner" role="banner">
 <span class="hero-share" aria-hidden="true">Compartilhar</span>
 <div class="hero-slides" id="heroSlides">
-<div class="hero-car hero-slide is-active" data-caption="Porsche 911 GT3 RS" aria-hidden="true"></div>
-<div class="hero-car hero-slide" data-caption="Porsche Macan Turbo" aria-hidden="true"></div>
+<div class="hero-slide is-active" data-caption="Porsche 911 GT3 RS"><img class="hero-car" src="assets/911-gt3-rs.jpg" alt="Porsche 911 GT3 RS" style="object-fit: contain;" onerror="this.style.display='none'"></div>
+<div class="hero-slide" data-caption="Porsche Macan Turbo Electric"><img class="hero-car" src="assets/macan-turbo-electric.jpg" alt="Porsche Macan Turbo Electric" style="object-fit: contain;" onerror="this.style.display='none'"></div>
+<div class="hero-slide" data-caption="Porsche Taycan Turbo"><img class="hero-car" src="assets/taycan-turbo.jpg" alt="Porsche Taycan Turbo" style="object-fit: contain;" onerror="this.style.display='none'"></div>
 </div>
 <button type="button" class="hero-nav hero-prev" id="heroPrev" aria-label="Veículo anterior">&#8249;</button>
 <button type="button" class="hero-nav hero-next" id="heroNext" aria-label="Próximo veículo">&#8250;</button>
@@ -1216,22 +1217,22 @@ body { background: #fff; }
 </div>
 <div class="cols-5 gap-3">
 <div class="field">
-<label for="fModel" class="text-xs label-caps">Modelo</label>
+<label for="fModel" class="text-xs label-caps">Modelo Porsche</label>
 <select class="input filter-select" id="fModel"></select>
 <span class="hint">Entre os 40 modelos distintos</span>
 </div>
 <div class="field">
-<label for="fYear" class="text-xs label-caps">Ano-modelo</label>
+<label for="fYear" class="text-xs label-caps">Ano-modelo (Model Year)</label>
 <select class="input filter-select" id="fYear"></select>
 <span class="hint">Ano de fabricação do veículo</span>
 </div>
 <div class="field">
-<label for="fCity" class="text-xs label-caps">Cidade</label>
+<label for="fCity" class="text-xs label-caps">Cidade (City)</label>
 <select class="input filter-select" id="fCity"></select>
 <span class="hint">Cidade da venda</span>
 </div>
 <div class="field">
-<label for="fPay" class="text-xs label-caps">Forma de pagamento</label>
+<label for="fPay" class="text-xs label-caps">Forma de pagamento (Pay method)</label>
 <select class="input filter-select" id="fPay"></select>
 <span class="hint">Meio de pagamento acordado</span>
 </div>
@@ -1257,7 +1258,7 @@ body { background: #fff; }
 
 <section class="card-soft section-card mt-4">
 <div class="section-head">
-<h2 class="text-sm mb-1">1. Principais modelos vendidos por cidade</h2>
+<h2 class="text-sm mb-1">a) Principais modelos vendidos por cidade</h2>
 <p class="hint mb-0">Heatmap de unidades por cidade e modelo, com ranking dos modelos líderes em cada cidade.</p>
 </div>
 <div id="heatmapWrap" class="table-responsive"></div>
@@ -1267,7 +1268,7 @@ body { background: #fff; }
 <section class="two-col mt-4">
 <div class="card-soft section-card">
 <div class="section-head">
-<h2 class="text-sm mb-1">2. Ano-modelo mais vendido no período</h2>
+<h2 class="text-sm mb-1">b) Ano-modelo mais vendido no período</h2>
 <p class="hint mb-0">Unidades vendidas por ano-modelo, respeitando o filtro de período.</p>
 </div>
 <div id="chartYear"></div>
@@ -1275,7 +1276,7 @@ body { background: #fff; }
 </div>
 <div class="card-soft section-card">
 <div class="section-head">
-<h2 class="text-sm mb-1">3. Carros populares por cidade</h2>
+<h2 class="text-sm mb-1">c) Carros populares por cidade</h2>
 <p class="hint mb-0">Top 3 modelos por cidade, com volume de unidades e receita em US$.</p>
 </div>
 <div id="popularCities" class="stack gap-3"></div>
@@ -1285,7 +1286,7 @@ body { background: #fff; }
 
 <section class="card-soft section-card mt-4">
 <div class="section-head">
-<h2 class="text-sm mb-1">4. Receita travada em pedidos não entregues</h2>
+<h2 class="text-sm mb-1">d) Receita travada em pedidos não entregues e o motivo</h2>
 <p class="hint mb-0">Receita por status de entrega e cruzamento com a forma de pagamento. Pendente = todos os status exceto Delivered e Cancelled.</p>
 </div>
 <div class="two-col">
@@ -1303,14 +1304,14 @@ body { background: #fff; }
 <section class="two-col mt-4">
 <div class="card-soft section-card">
 <div class="section-head">
-<h2 class="text-sm mb-1">5a. Vendedores com melhor desempenho</h2>
+<h2 class="text-sm mb-1">e) Vendedores com melhor desempenho</h2>
 <p class="hint mb-0">Ranking por receita (US$) e quantidade de vendas.</p>
 </div>
 <div id="sellerRank"></div>
 </div>
 <div class="card-soft section-card">
 <div class="section-head">
-<h2 class="text-sm mb-1">5b. Estados com melhor desempenho</h2>
+<h2 class="text-sm mb-1">Estados com melhor desempenho</h2>
 <p class="hint mb-0">Ranking por receita (US$) e volume de unidades.</p>
 </div>
 <div id="stateRank"></div>
@@ -1319,7 +1320,7 @@ body { background: #fff; }
 
 <section class="card-soft section-card mt-4">
 <div class="section-head">
-<h2 class="text-sm mb-1">6. Preço x quilometragem por ano-modelo</h2>
+<h2 class="text-sm mb-1">f) Preço x ano-modelo e quilometragem</h2>
 <p class="hint mb-0">Dispersão de preço e quilometragem, colorida por ano-modelo. Cada ponto é uma venda com data válida.</p>
 </div>
 <div id="scatter"></div>
@@ -1584,7 +1585,8 @@ const kpis = [
 { label: 'Ticket médio', value: fmtUSD(avg), hint: 'Receita dividida pelas vendas' },
 { label: 'Modelos distintos', value: fmtNum(models), hint: 'Modelos presentes na seleção' },
 { label: '% entregue', value: fmtPct(pctDelivered), hint: `${delivered} vendas com status Delivered` },
-{ label: 'Receita não entregue', value: fmtUSD(unrealized), hint: 'Pendentes e em trânsito' }
+{ label: 'Receita em pedidos não entregues', value: fmtUSD(unrealized), hint: 'Pendentes e em trânsito' },
+{ label: '% da receita não entregue', value: fmtPct(revenue ? unrealized / revenue : 0), hint: 'Sobre a receita total' }
 ];
 document.getElementById('kpis').innerHTML = `<div class="shell-grid cols-3 gap-3">` + kpis.map(k => `
 <div class="kpi">
@@ -1850,7 +1852,7 @@ const nextBtn = document.getElementById('heroNext');
 const captionEl = document.getElementById('heroCaption');
 const INTERVAL = 15000;
 const imgs = [...slidesEl.querySelectorAll('.hero-slide')];
-const SLIDE_CAPTIONS = imgs.map((img, i) => img.dataset.caption || img.alt || ('Veículo ' + (i + 1)));
+const SLIDE_CAPTIONS = imgs.map((img, i) => img.dataset.caption || ('Veículo ' + (i + 1)));
 let current = 0;
 let timer = null;
 
