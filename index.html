@@ -1108,6 +1108,14 @@ body .filters-bar .filter-select option { background: #FFFFFF; color: #1A1A1A; }
 body .filters-bar .filter-select:disabled { background: #F2F2F2; color: #1A1A1A; }
 body .filters-bar label { color: #FFFFFF !important; }
 body .filters-bar .hint { color: #E6E6E6 !important; }
+.filters-bar .cols-5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.filters-bar .field { display: flex; flex-direction: column; min-width: 0; height: 100%; box-sizing: border-box; }
+.filters-bar .field .hint { margin-top: 6px; }
+.filters-bar .field > label { display: block; min-height: 2.6em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.filters-bar select.filter-select { width: 100%; box-sizing: border-box; min-width: 0; }
+.filters-bar #filterCount { margin-right: 0; margin-top: 0; }
+@media (max-width: 1100px) { .filters-bar .cols-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .filters-bar .cols-5 { grid-template-columns: minmax(0, 1fr); } }
 body .btn[data-variant="outline"], body .btn[data-variant="ghost"] { color: #FFFFFF; border-color: rgba(255,255,255,0.18); background: rgba(0,0,0,0.2); }
 body .shell-table th, body .shell-table td { color: #FFFFFF; border-color: rgba(255,255,255,0.18); background: rgba(0,0,0,0.2); }
 body .hint, body .muted, body .kpi-label, body .page-header p, body .shell-footer p { color: #E6E6E6 !important; }
@@ -1222,17 +1230,17 @@ body { background: #fff; }
 <span class="hint">Entre os 40 modelos distintos</span>
 </div>
 <div class="field">
-<label for="fYear" class="text-xs label-caps">Ano-modelo (Model Year)</label>
+<label for="fYear" class="text-xs label-caps">ANO-MODELO</label>
 <select class="input filter-select" id="fYear"></select>
 <span class="hint">Ano de fabricação do veículo</span>
 </div>
 <div class="field">
-<label for="fCity" class="text-xs label-caps">Cidade (City)</label>
+<label for="fCity" class="text-xs label-caps">CIDADE</label>
 <select class="input filter-select" id="fCity"></select>
 <span class="hint">Cidade da venda</span>
 </div>
 <div class="field">
-<label for="fPay" class="text-xs label-caps">Forma de pagamento (Pay method)</label>
+<label for="fPay" class="text-xs label-caps">FORMA DE PAGAMENTO</label>
 <select class="input filter-select" id="fPay"></select>
 <span class="hint">Meio de pagamento acordado</span>
 </div>
