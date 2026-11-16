@@ -1,2 +1,2 @@
 # porsche-sales-intelligence
-Dashboard executivo para responder pergunas de negócios
+Dashboard executivo para responder perguntas de negócios
