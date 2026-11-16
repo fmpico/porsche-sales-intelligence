@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de vendas Porsche</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+<style>
+/* Skip artifact shell — fixed styles served beside every artifact.
+   Tokens, utilities and components (basecoat 1.0 markup, no CDN); artifacts
+   override --accent for their own identity. */
+:root {
+  color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #14171f;
+  --text-muted: #5b6472;
+  --border: rgba(20, 23, 31, 0.10);
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
+  --space: 16px;
+  --success: #0a7a35;
+  --danger: #c0262d;
+  --warning: #8a5300;
+}
+/* Theme resolution. Without data-theme the viewer's system preference decides,
+   as it always did. With it, the artifact's own choice wins in BOTH directions:
+   a page that hardcodes one palette must not be handed the opposite set of
+   tokens by the machine it happens to be opened on. The dark values appear
+   twice because a media query cannot be folded into a selector list.
+   The attribute sits inside :where() so these blocks keep the specificity of a
+   bare :root — the page's own <style> is linked after this file and must go on
+   overriding any token it wants, exactly as it could before. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+    --bg: #101318;
+    --surface: #181c23;
+    --text: #eef1f6;
+    --text-muted: #9aa4b2;
+    --border: rgba(238, 241, 246, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --success: #4ade80;
+    --danger: #f87171;
+    --warning: #fbbf24;
+  }
+}
+:root:where([data-theme="dark"]) {
+  color-scheme: dark;
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bg: #101318;
+  --surface: #181c23;
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --border: rgba(238, 241, 246, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --success: #4ade80;
+  --danger: #f87171;
+  --warning: #fbbf24;
+}
+:root:where([data-theme="light"]) { color-scheme: light; }
+/* Pages generated before the shell had its own components still link the
+   basecoat CDN, which reads its own tokens and switches theme only on a
+   .dark class. Bridged to the shell's, whatever of it those pages use takes
+   the page's accent and follows the declared theme. Its --accent token is a
+   hover tint, renamed in its theme as --color-accent; the shell's --accent is
+   the brand colour, so the tint is derived from it here. */
+:root {
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-contrast);
+  --secondary: color-mix(in srgb, var(--text) 7%, var(--surface));
+  --secondary-foreground: var(--text);
+  --muted: color-mix(in srgb, var(--text) 5%, var(--surface));
+  --muted-foreground: var(--text-muted);
+  --color-accent: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  --color-accent-foreground: var(--text);
+  --destructive: var(--danger);
+  --input: var(--border);
+  --ring: var(--accent);
+}
+* { box-sizing: border-box; }
+/* The reset the pages were written against: they all linked basecoat, which
+   ships Tailwind's. Its components now live here, so the reset does too. */
+*, ::before, ::after, ::backdrop { margin: 0; padding: 0; border: 0 solid; }
+/* Preflight's rule too: without it a component class that sets display
+   (.alert, .card, .btn…) beats the hidden attribute and shows the element. */
+[hidden]:where(:not([hidden="until-found"])) { display: none !important; }
+.hidden { display: none !important; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+a { color: inherit; text-decoration: inherit; }
+b, strong { font-weight: bolder; }
+ol, ul, menu { list-style: none; }
+svg, video, canvas, iframe { display: block; vertical-align: middle; }
+button, input, select, textarea { color: inherit; background-color: transparent; border-radius: 0; }
+table { border-collapse: collapse; }
+hr { height: 0; color: inherit; border-top-width: 1px; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.shell-section { padding: calc(var(--space) * 2) 0; }
+.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
+.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
+
+.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
+.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
+.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space);
+}
+
+.kpi { display: flex; flex-direction: column; gap: 4px; }
+.kpi .kpi-value { font-size: clamp(22px, 2.3vw, 28px); font-weight: 650; line-height: 1.1; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
+.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
+.kpi .kpi-delta.up { color: var(--success); }
+.kpi .kpi-delta.down { color: var(--danger); }
+
+table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.shell-table th {
+  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+}
+table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
+table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+.chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin-top: 12px; font-size: 12.5px; color: var(--text-muted); }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.chart-legend b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-text); }
+.shell-badge, .eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
+}
+/* A pill keeps its content width inside flex and grid columns, which would
+   otherwise stretch it across the card; a centred parent still centres it. */
+.shell-badge, .eyebrow, .badge { width: fit-content; max-width: 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .shell-fade { animation: shell-fade 400ms ease both; }
+  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+/* Layout and type utilities: what the pages kept spelling in style="".
+   Spacing and type sizes follow Tailwind's scale; there is no Tailwind. */
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.stack { display: flex; flex-direction: column; gap: var(--space); }
+.between { justify-content: space-between; }
+.grow { flex: 1 1 0; min-width: 0; }
+.cols-2, .cols-3, .cols-4, .cols-5 { display: grid; gap: var(--space); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) {
+  .cols-2, .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cols-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1000px) { .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; } .gap-6 { gap: 24px; }
+.m-0 { margin: 0; }
+.mt-1 { margin-top: 4px; } .mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; } .mt-4 { margin-top: 16px; } .mt-6 { margin-top: 24px; }
+.mb-1 { margin-bottom: 4px; } .mb-2 { margin-bottom: 8px; } .mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; } .mb-6 { margin-bottom: 24px; }
+.p-2 { padding: 8px; } .p-3 { padding: 12px; } .p-4 { padding: 16px; } .p-6 { padding: 24px; }
+.text-xs { font-size: 12px; } .text-sm { font-size: 14px; } .text-base { font-size: 16px; }
+.text-lg { font-size: 18px; } .text-xl { font-size: 20px; line-height: 1.35; }
+.text-2xl { font-size: 24px; line-height: 1.25; } .text-3xl { font-size: 30px; line-height: 1.2; }
+.font-medium { font-weight: 500; } .font-semibold { font-weight: 600; } .font-bold { font-weight: 700; }
+.text-right { text-align: right; } .text-center { text-align: center; }
+.nowrap { white-space: nowrap; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
+.w-full { width: 100%; }
+.text-success { color: var(--success); } .text-danger { color: var(--danger); } .text-warning { color: var(--warning); }
+
+/* Components, with basecoat 1.0 markup (variants and sizes are data
+   attributes) and the shell tokens, so a page needs neither component CSS
+   nor a CSS framework. An older page that also links basecoat gets these
+   rules after it, over the same properties. */
+button, input, select, textarea { font: inherit; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 36px; padding: 0 14px; border: 1px solid transparent; border-radius: calc(var(--radius) - 2px);
+  background: var(--accent); color: var(--accent-contrast);
+  font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.btn:hover { background: color-mix(in srgb, var(--accent) 86%, #000); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+.btn[data-variant="secondary"] { background: color-mix(in srgb, var(--text) 8%, var(--surface)); color: var(--text); }
+.btn[data-variant="secondary"]:hover { background: color-mix(in srgb, var(--text) 14%, var(--surface)); }
+.btn[data-variant="outline"] { background: var(--surface); color: var(--text); border-color: var(--border); }
+.btn[data-variant="ghost"] { background: transparent; color: var(--text); }
+.btn[data-variant="outline"]:hover, .btn[data-variant="ghost"]:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.btn[data-variant="destructive"] { background: var(--danger); color: var(--bg); }
+.btn[data-variant="destructive"]:hover { background: color-mix(in srgb, var(--danger) 86%, var(--text)); }
+.btn[data-variant="link"] { height: auto; padding: 0; background: none; color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.btn[data-size="sm"] { height: 30px; padding: 0 10px; font-size: 13px; }
+.btn[data-size="lg"] { height: 42px; padding: 0 20px; font-size: 15px; }
+.btn[data-size="icon"] { width: 36px; padding: 0; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+  border: 1px solid transparent; border-radius: 999px; background: var(--accent); color: var(--accent-contrast);
+  font-size: 12px; font-weight: 600; line-height: 1.5; white-space: nowrap;
+}
+.badge[data-variant="secondary"] { background: color-mix(in srgb, var(--text) 8%, var(--surface)); color: var(--text); }
+.badge[data-variant="outline"] { background: transparent; color: var(--text); border-color: var(--border); }
+.badge[data-variant="destructive"] { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); color: var(--danger); }
+
+.alert {
+  display: grid; gap: 4px; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); font-size: 14px;
+}
+.alert h2, .alert h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.alert p, .alert section { margin: 0; color: var(--text-muted); }
+.alert[data-variant="destructive"] { border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); background: color-mix(in srgb, var(--danger) 7%, var(--surface)); color: var(--danger); }
+
+.card {
+  display: flex; flex-direction: column; gap: 16px; padding: 20px 0;
+  border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+}
+.card > header, .card > section, .card > footer { padding: 0 20px; }
+.card > header { display: grid; gap: 4px; }
+.card > header h2, .card > header h3 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.card > header p { margin: 0; color: var(--text-muted); font-size: 14px; }
+.card > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.input {
+  width: 100%; min-height: 36px; padding: 6px 12px; border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
+  background: var(--surface); color: var(--text); font-size: 14px;
+}
+textarea.input { min-height: 84px; resize: vertical; }
+.input::placeholder { color: var(--text-muted); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 500; }
+.field [role="alert"] { color: var(--danger); font-size: 13px; }
+
+dialog.dialog {
+  width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 32px); margin: auto; padding: 0;
+  border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px);
+  background: var(--surface); color: var(--text); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+dialog.dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+dialog.dialog > div { display: grid; gap: 16px; padding: 24px; }
+dialog.dialog header { display: grid; gap: 4px; }
+dialog.dialog header h2 { margin: 0; font-size: 18px; font-weight: 600; }
+dialog.dialog header p { margin: 0; color: var(--text-muted); font-size: 14px; }
+dialog.dialog footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+.tabs { display: grid; gap: 12px; }
+.tabs > [role="tablist"] {
+  display: inline-flex; gap: 4px; width: fit-content; max-width: 100%; padding: 4px; overflow-x: auto;
+  border-radius: var(--radius); background: color-mix(in srgb, var(--text) 6%, var(--surface));
+}
+.tabs [role="tab"] {
+  padding: 6px 12px; border: 0; border-radius: calc(var(--radius) - 4px); background: transparent;
+  color: var(--text-muted); font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer;
+}
+.tabs [role="tab"][aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.tabs [role="tabpanel"][hidden] { display: none; }
+
+.accordion > details { border-bottom: 1px solid var(--border); }
+.accordion > details > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 0; font-weight: 500; list-style: none; cursor: pointer;
+}
+.accordion > details > summary::-webkit-details-marker { display: none; }
+.accordion > details > summary::after { content: "+"; color: var(--text-muted); font-size: 18px; line-height: 1; }
+.accordion > details[open] > summary::after { content: "\2212"; }
+.accordion > details > :not(summary) { margin: 0 0 14px; color: var(--text-muted); }
+
+.toaster {
+  position: fixed; right: 16px; bottom: 16px; z-index: 50; display: flex; flex-direction: column-reverse; gap: 8px;
+  width: min(360px, calc(100vw - 32px)); pointer-events: none;
+}
+.toaster .toast { pointer-events: auto; transition: opacity 200ms ease, transform 200ms ease; }
+.toaster .toast[aria-hidden="true"] { opacity: 0; transform: translateY(8px); }
+.toaster .toast-content {
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); font-size: 13px;
+}
+.toaster .toast-content h2 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+.toaster .toast-content p { margin: 0; color: var(--text-muted); }
+
+/* skipUI building blocks. */
+.skip-table-search { max-width: 320px; margin-bottom: 12px; }
+.skip-table-wrap { overflow-x: auto; }
+table.shell-table th[data-sort] { cursor: pointer; user-select: none; }
+table.shell-table th[aria-sort="ascending"]::after { content: " \25B2"; font-size: 9px; }
+table.shell-table th[aria-sort="descending"]::after { content: " \25BC"; font-size: 9px; }
+table.shell-table td.skip-table-empty { color: var(--text-muted); text-align: center; padding: 24px 0; }
+.skip-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; font-size: 13px; color: var(--text-muted); }
+.toaster .toast[data-type="success"] .toast-content { border-left: 3px solid var(--success); }
+.toaster .toast[data-type="error"] .toast-content { border-left: 3px solid var(--danger); }
+
+</style>
+<script>
+/* Skip artifact shell — fixed helpers served beside every artifact. */
+(function () {
+  "use strict";
+
+  var fmt = {
+    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
+    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
+    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); },
+    compact: function (v) { return new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(v); },
+    brlCompact: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", notation: "compact", maximumFractionDigits: 1 }).format(v); }
+  };
+
+  // axisLabels formats the five y-axis ticks in the unit the chart declared
+  // (percent, BRL or plain numbers), compact so long values never clip, with
+  // the fewest decimals that still print every tick exactly (1,5 mi, not 2 mi).
+  function axisLabels(format, ticks) {
+    function at(digits) {
+      var opts = { notation: "compact", maximumFractionDigits: digits };
+      if (format === "pct") opts = { style: "percent", maximumFractionDigits: digits };
+      else if (format === "brl") opts = { style: "currency", currency: "BRL", notation: "compact", maximumFractionDigits: digits };
+      var nf = new Intl.NumberFormat("pt-BR", opts);
+      return ticks.map(function (t) { return nf.format(t); });
+    }
+    for (var digits = 0; digits < 2; digits++) {
+      if (at(digits).join("|") === at(digits + 1).join("|")) return at(digits);
+    }
+    return at(2);
+  }
+
+  // yAxisPad formats the ticks and measures the left padding they need from
+  // the longest one; drawYAxis then draws the grid and the labels.
+  function yAxisPad(format, max) {
+    var labels = axisLabels(format, [0, max / 4, max / 2, (max * 3) / 4, max]);
+    var longest = labels.reduce(function (m, l) { return Math.max(m, l.length); }, 0);
+    return { labels: labels, padL: Math.max(40, Math.round(longest * 6.2) + 14) };
+  }
+  function drawYAxis(svg, axis, W, padR, padT, plotH) {
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: axis.padL, y1: gy, x2: W - padR, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: axis.padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axis.labels[g];
+      svg.appendChild(lbl);
+    }
+  }
+
+  // xLabelStep: show every k-th category label so labels never overlap, and
+  // always the last one (counted back from the end).
+  function xLabelStep(labels, step) {
+    var longest = labels.reduce(function (m, l) { return Math.max(m, String(l).length); }, 0);
+    return Math.max(1, Math.ceil((longest * 6.4 + 8) / Math.max(step, 1)));
+  }
+  function drawXLabel(svg, text, x, y, W, edgeGuard) {
+    var anchor = "middle";
+    var half = String(text).length * 3.2;
+    if (edgeGuard && x - half < 4) anchor = "start";
+    if (edgeGuard && x + half > W - 4) anchor = "end";
+    var tx = svgEl("text", { x: x, y: y, "text-anchor": anchor, "font-size": 11, fill: mutedColor() });
+    tx.textContent = text;
+    svg.appendChild(tx);
+  }
+  // categoryLines fits a bar's category name in its slot: one line, two lines
+  // split at a space, or cut with "…". A bar without its name can't be read, so
+  // categories are never skipped; null when the slot is too narrow for that.
+  function categoryLines(text, slot) {
+    var fit = Math.floor((slot - 6) / 6.4);
+    var s = String(text);
+    if (fit < 4) return null;
+    if (s.length <= fit) return [s];
+    var cut = function (t) { return t.length <= fit ? t : t.slice(0, fit - 1).trimEnd() + "…"; };
+    var best = -1;
+    for (var i = 0; i < s.length; i++) {
+      if (s[i] === " " && (best < 0 || Math.abs(s.length / 2 - i) < Math.abs(s.length / 2 - best))) best = i;
+    }
+    if (best < 0) return [cut(s)];
+    return [cut(s.slice(0, best)), cut(s.slice(best + 1))];
+  }
+  function legend(el, items) {
+    var box = document.createElement("div");
+    box.className = "chart-legend";
+    items.forEach(function (it) {
+      var row = document.createElement("span");
+      var dot = document.createElement("i");
+      dot.style.background = it.color;
+      row.appendChild(dot);
+      row.appendChild(document.createTextNode((it.label || "") + (it.value ? " " : "")));
+      if (it.value) {
+        var v = document.createElement("b");
+        v.textContent = it.value;
+        row.appendChild(v);
+      }
+      box.appendChild(row);
+    });
+    resolve(el).appendChild(box);
+  }
+  var seriesPalette = ["#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4", "#0ea5b7"];
+
+  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
+  // A page's function may return nothing or throw: the chart prints its
+  // number instead of taking the rest of the page script down with it.
+  function coerceFormat(spec) {
+    if (typeof spec === "function") {
+      return function (v) {
+        try {
+          var out = spec(v);
+          return out == null ? "" : String(out);
+        } catch (e) {
+          return fmt.num(v);
+        }
+      };
+    }
+    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
+    return function (v) { return fmt.num(v); };
+  }
+
+  function accent() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
+  }
+  function mutedColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function frame(el, w, h) {
+    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    el = resolve(el);
+    el.innerHTML = "";
+    el.appendChild(svg);
+    return svg;
+  }
+
+  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
+  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
+  // finite reads a chart value as a number, 0 when it is not one (NaN,
+  // Infinity, a stray string), so one bad value cannot blank the axis.
+  function finite(v) {
+    var n = +v;
+    return isFinite(n) ? n : 0;
+  }
+
+  function maxOf(values) {
+    var m = values.length ? Math.max.apply(null, values.map(finite)) : 0;
+    return m > 0 ? m : 1;
+  }
+
+  // labelsFor pads or trims the category names to the n points drawn: pages
+  // pass labels and values of different lengths, and one throw here loses
+  // every section the page renders after the chart.
+  function labelsFor(cfg, n) {
+    var out = [];
+    for (var i = 0; i < n; i++) out.push(cfg.labels && cfg.labels[i] != null ? String(cfg.labels[i]) : "");
+    return out;
+  }
+
+  // niceMax rounds the scale up so the four grid steps land on round values
+  // (1, 1.5, 2, 2.5, 3, 4, 5, 6 or 8 × 10^k) and the tick labels read exactly.
+  function niceMax(max) {
+    var raw = max / 4;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var res = raw / mag;
+    var steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    var nice = steps.filter(function (s) { return s >= res - 1e-9; })[0];
+    return nice * mag * 4;
+  }
+
+  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
+  function bar(el, cfg) {
+    var W = 640, H = 280, padB = 30, padT = 12, padR = 12;
+    var max = niceMax(maxOf(cfg.values));
+    var axis = yAxisPad(cfg.format, max);
+    var svg = frame(el, W, H);
+    var n = cfg.values.length;
+    var labels = labelsFor(cfg, n);
+    var plotW = W - axis.padL - padR;
+    var step = plotW / n, bw = Math.min(step * 0.62, 64);
+    var names = labels.map(function (l) { return categoryLines(l, step); });
+    var named = names.every(Boolean);
+    if (named && names.some(function (l) { return l.length > 1; })) padB = 42;
+    var plotH = H - padT - padB;
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    var every = xLabelStep(labels, step);
+    drawYAxis(svg, axis, W, padR, padT, plotH);
+    cfg.values.forEach(function (v, i) {
+      var bh = Math.max(0, (finite(v) / max) * plotH);
+      var x = axis.padL + i * step + (step - bw) / 2;
+      var y = padT + plotH - bh;
+      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: (cfg.colors && cfg.colors[i]) || color });
+      var t = svgEl("title", {});
+      t.textContent = labels[i] + ": " + f(v);
+      r.appendChild(t);
+      svg.appendChild(r);
+      if (named) {
+        names[i].forEach(function (text, li) {
+          drawXLabel(svg, text, x + bw / 2, padT + plotH + 18 + li * 13, W, false);
+        });
+      } else if ((n - 1 - i) % every === 0) {
+        drawXLabel(svg, labels[i], x + bw / 2, H - 10, W, false);
+      }
+    });
+  }
+
+  // line(el, {labels:[], values:[] | series:[{label, values, color?}], color?, format?})
+  // — one line, or several series on one scale with a legend under the chart.
+  function line(el, cfg) {
+    var W = 640, H = 280, padB = 30, padT = 12, padR = 16;
+    var series = cfg.series && cfg.series.length
+      ? cfg.series
+      : [{ label: "", values: cfg.values || [], color: cfg.color }];
+    var all = [];
+    series.forEach(function (s) { all = all.concat(s.values || []); });
+    var max = niceMax(maxOf(all));
+    var axis = yAxisPad(cfg.format, max);
+    var svg = frame(el, W, H);
+    var n = series.reduce(function (m, s) { return Math.max(m, (s.values || []).length); }, 0);
+    var labels = labelsFor(cfg, n);
+    var plotW = W - axis.padL - padR, plotH = H - padT - padB;
+    var f = coerceFormat(cfg.format);
+    drawYAxis(svg, axis, W, padR, padT, plotH);
+    var xs = labels.map(function (_, i) { return axis.padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1)); });
+    var every = xLabelStep(labels, n > 1 ? plotW / (n - 1) : plotW);
+    labels.forEach(function (label, i) {
+      if ((n - 1 - i) % every === 0) drawXLabel(svg, label, xs[i], H - 10, W, true);
+    });
+    var colors = series.map(function (s, si) {
+      return s.color || (si === 0 ? (cfg.color || accent()) : seriesPalette[(si - 1) % seriesPalette.length]);
+    });
+    series.forEach(function (s, si) {
+      var color = colors[si];
+      var pts = (s.values || []).map(function (v, i) { return [xs[i], padT + plotH - (finite(v) / max) * plotH]; });
+      var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+      svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+      pts.forEach(function (p, i) {
+        var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
+        var t = svgEl("title", {});
+        t.textContent = (s.label ? s.label + " · " : "") + labels[i] + ": " + f(s.values[i]);
+        c.appendChild(t);
+        svg.appendChild(c);
+      });
+    });
+    if (series.length > 1) {
+      legend(el, series.map(function (s, si) { return { label: s.label, color: colors[si] }; }));
+    }
+  }
+
+  // donut(el, {labels:[], values:[], colors?, format?, center?, centerLabel?, legend?})
+  // — donut with a short total in the centre (compact, in the declared unit)
+  // and, with legend: true, the labels and shares listed under it.
+  function donut(el, cfg) {
+    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
+    var svg = frame(el, W, H);
+    // At 100% of a wide container the donut outgrows the height pages give
+    // the box and spills over the next section: keep it at its own size.
+    svg.style.maxWidth = W + "px";
+    svg.style.margin = "0 auto";
+    var values = cfg.values.map(finite);
+    var labels = labelsFor(cfg, values.length);
+    var sum = values.reduce(function (a, b) { return a + b; }, 0);
+    var total = sum || 1;
+    var palette = cfg.colors || [accent()].concat(seriesPalette);
+    // The hover keeps the full value; the centre has room for a short one.
+    var full = coerceFormat(cfg.format);
+    var short = typeof cfg.format === "function" ? full : cfg.format === "brl" ? fmt.brlCompact : fmt.compact;
+    var a0 = -Math.PI / 2;
+    values.forEach(function (v, i) {
+      var a1 = a0 + (v / total) * Math.PI * 2;
+      var large = a1 - a0 > Math.PI ? 1 : 0;
+      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
+        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
+        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
+        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
+      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
+      var t = svgEl("title", {});
+      t.textContent = labels[i] + ": " + full(v) + " (" + fmt.pct(v / total) + ")";
+      path.appendChild(t);
+      svg.appendChild(path);
+      a0 = a1;
+    });
+    // A share chart has no total worth printing: without its own centre text
+    // the caption alone takes the middle.
+    var text = cfg.center != null ? String(cfg.center) : (cfg.format === "pct" ? "" : short(sum));
+    if (text) {
+      var size = text.length > 9 ? 14 : text.length > 7 ? 17 : 20;
+      var center = svgEl("text", { x: cx, y: cfg.centerLabel ? cy + 1 : cy + 6, "text-anchor": "middle", "font-size": size, "font-weight": 650, fill: "currentColor" });
+      center.textContent = text;
+      svg.appendChild(center);
+    }
+    if (cfg.centerLabel) {
+      var cap = svgEl("text", { x: cx, y: text ? cy + 19 : cy + 5, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      cap.textContent = cfg.centerLabel;
+      svg.appendChild(cap);
+    }
+    if (cfg.legend) {
+      legend(el, labels.map(function (label, i) {
+        return { label: label, color: palette[i % palette.length], value: fmt.pct(values[i] / total) };
+      }));
+    }
+  }
+
+  // ---- Page building blocks: what dashboards and small systems kept
+  // re-implementing — a searchable sortable table, a KPI row, tabs, toasts,
+  // dialogs, saved state and mock data. Every call is opt-in, so a page that
+  // brings its own versions keeps them.
+
+  function resolve(target) {
+    return typeof target === "string" ? document.querySelector(target) : target;
+  }
+
+  function node(tag, className, text) {
+    var el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text != null) el.textContent = text;
+    return el;
+  }
+
+  function isNumberColumn(col) {
+    return col.align === "right" || col.format === "num" || col.format === "brl" || col.format === "pct";
+  }
+
+  function cellText(col, row) {
+    var value = row[col.key];
+    if (value == null) return "";
+    return col.format ? coerceFormat(col.format)(value) : String(value);
+  }
+
+  function compareValues(a, b) {
+    if (typeof a === "number" && typeof b === "number") return a - b;
+    return String(a == null ? "" : a).localeCompare(String(b == null ? "" : b), "pt-BR", { numeric: true });
+  }
+
+  // table(el, {columns, rows, search?, pageSize?, empty?, onRowClick?}) — a
+  // table.shell-table with sortable headers, an optional search box and
+  // pager. A column is {key, label, format?, align?, sortable? (true),
+  // render?(value, row) returning a Node or an HTML string — the page writes
+  // its cell templates as markup}. Plain values are always set as text.
+  // Returns {setRows, rows}.
+  function table(target, cfg) {
+    var root = resolve(target);
+    var cols = cfg.columns || [];
+    var pageSize = cfg.pageSize || 0;
+    var state = { rows: (cfg.rows || []).slice(), query: "", key: null, dir: 1, page: 0 };
+    root.innerHTML = "";
+    if (cfg.search) {
+      var search = node("input", "input skip-table-search");
+      search.type = "search";
+      search.placeholder = typeof cfg.search === "string" ? cfg.search : "Buscar…";
+      search.setAttribute("aria-label", search.placeholder);
+      search.addEventListener("input", function () {
+        state.query = search.value.trim().toLowerCase();
+        state.page = 0;
+        draw();
+      });
+      root.appendChild(search);
+    }
+    var tableEl = node("table", "shell-table");
+    var headRow = node("tr");
+    var heads = cols.map(function (col) {
+      var th = node("th", isNumberColumn(col) ? "num" : "", col.label == null ? col.key : col.label);
+      th.scope = "col";
+      if (col.sortable !== false) {
+        var toggle = function () {
+          state.dir = state.key === col.key ? -state.dir : 1;
+          state.key = col.key;
+          draw();
+        };
+        th.setAttribute("data-sort", col.key);
+        th.tabIndex = 0;
+        th.addEventListener("click", toggle);
+        th.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+        });
+      }
+      headRow.appendChild(th);
+      return th;
+    });
+    var thead = node("thead");
+    var tbody = node("tbody");
+    var wrap = node("div", "skip-table-wrap");
+    var pager = node("div", "skip-pager");
+    thead.appendChild(headRow);
+    tableEl.appendChild(thead);
+    tableEl.appendChild(tbody);
+    wrap.appendChild(tableEl);
+    root.appendChild(wrap);
+    if (pageSize) root.appendChild(pager);
+
+    function visibleRows() {
+      var rows = state.rows;
+      if (state.query) {
+        rows = rows.filter(function (row) {
+          return cols.some(function (col) { return cellText(col, row).toLowerCase().indexOf(state.query) >= 0; });
+        });
+      }
+      if (state.key) {
+        var key = state.key, dir = state.dir;
+        rows = rows.slice().sort(function (a, b) { return dir * compareValues(a[key], b[key]); });
+      }
+      return rows;
+    }
+
+    function drawRow(row) {
+      var tr = node("tr");
+      cols.forEach(function (col) {
+        var td = node("td", isNumberColumn(col) ? "num" : "");
+        if (!col.render) {
+          td.textContent = cellText(col, row);
+        } else {
+          var content = col.render(row[col.key], row);
+          if (content instanceof Node) td.appendChild(content);
+          else td.innerHTML = content == null ? "" : String(content);
+        }
+        tr.appendChild(td);
+      });
+      // The row stays a row (no role) and takes focus, so a keyboard reaches
+      // the same action; keys pressed on a control inside a cell are its own.
+      if (cfg.onRowClick) {
+        tr.style.cursor = "pointer";
+        tr.tabIndex = 0;
+        tr.addEventListener("click", function () { cfg.onRowClick(row); });
+        tr.addEventListener("keydown", function (e) {
+          if (e.target !== tr || (e.key !== "Enter" && e.key !== " ")) return;
+          e.preventDefault();
+          cfg.onRowClick(row);
+        });
+      }
+      return tr;
+    }
+
+    function pagerButton(label, disabled, step) {
+      var button = node("button", "btn", label);
+      button.type = "button";
+      button.setAttribute("data-variant", "outline");
+      button.setAttribute("data-size", "sm");
+      button.disabled = disabled;
+      button.addEventListener("click", function () { state.page += step; draw(); });
+      return button;
+    }
+
+    function draw() {
+      var rows = visibleRows();
+      heads.forEach(function (th, i) {
+        if (cols[i].key === state.key) th.setAttribute("aria-sort", state.dir > 0 ? "ascending" : "descending");
+        else th.removeAttribute("aria-sort");
+      });
+      var pages = pageSize ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
+      state.page = Math.min(state.page, pages - 1);
+      var shown = pageSize ? rows.slice(state.page * pageSize, (state.page + 1) * pageSize) : rows;
+      tbody.innerHTML = "";
+      if (!shown.length) {
+        var empty = node("td", "skip-table-empty", cfg.empty || "Nenhum registro encontrado.");
+        empty.colSpan = cols.length;
+        tbody.appendChild(node("tr")).appendChild(empty);
+      }
+      shown.forEach(function (row) { tbody.appendChild(drawRow(row)); });
+      if (!pageSize) return;
+      pager.innerHTML = "";
+      var from = rows.length ? state.page * pageSize + 1 : 0;
+      pager.appendChild(node("span", "", from + "–" + Math.min(rows.length, (state.page + 1) * pageSize) + " de " + rows.length));
+      var nav = node("div", "row gap-2");
+      nav.appendChild(pagerButton("Anterior", state.page === 0, -1));
+      nav.appendChild(pagerButton("Próxima", state.page >= pages - 1, 1));
+      pager.appendChild(nav);
+    }
+
+    draw();
+    return {
+      setRows: function (rows) { state.rows = rows.slice(); draw(); },
+      rows: visibleRows
+    };
+  }
+
+  // kpis(el, [{label, value, format?, delta?, hint?}]) — KPI cards in a
+  // responsive grid; delta is a fraction (0.12 renders as ▲ 12%).
+  function kpis(target, items) {
+    var root = resolve(target);
+    root.innerHTML = "";
+    root.classList.add("shell-grid");
+    items.forEach(function (item) {
+      var card = node("div", "panel kpi");
+      card.appendChild(node("span", "kpi-label", item.label));
+      // Large money values go compact ("R$ 27,5 mi"): the full amount does
+      // not fit a KPI card at four per row.
+      var kpiFormat = item.format === "brl" && Math.abs(item.value) >= 1e6 ? fmt.brlCompact : (item.format ? coerceFormat(item.format) : null);
+      card.appendChild(node("span", "kpi-value", kpiFormat ? kpiFormat(item.value) : String(item.value)));
+      if (typeof item.delta === "number") {
+        var up = item.delta >= 0;
+        card.appendChild(node("span", "kpi-delta " + (up ? "up" : "down"), (up ? "▲ " : "▼ ") + fmt.pct(Math.abs(item.delta))));
+      }
+      if (item.hint) card.appendChild(node("span", "kpi-label", item.hint));
+      root.appendChild(card);
+    });
+  }
+
+  // badge(text, variant?) — a .badge node for table cells and lists;
+  // variant is "secondary" | "outline" | "destructive" (default: primary).
+  function badge(text, variant) {
+    var el = node("span", "badge", text);
+    if (variant) el.setAttribute("data-variant", variant);
+    return el;
+  }
+
+  // tabs(el) — wires one .tabs block: [role=tab] buttons inside
+  // [role=tablist], each with aria-controls naming its [role=tabpanel].
+  function tabs(target) {
+    var root = resolve(target);
+    var buttons = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+    function select(chosen) {
+      buttons.forEach(function (b) {
+        var on = b === chosen;
+        b.setAttribute("aria-selected", on ? "true" : "false");
+        b.tabIndex = on ? 0 : -1;
+        var panel = document.getElementById(b.getAttribute("aria-controls"));
+        if (panel) panel.hidden = !on;
+      });
+    }
+    buttons.forEach(function (b, i) {
+      b.addEventListener("click", function () { select(b); });
+      b.addEventListener("keydown", function (e) {
+        var step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!step) return;
+        var next = buttons[(i + step + buttons.length) % buttons.length];
+        next.focus();
+        select(next);
+      });
+    });
+    select(buttons.filter(function (b) { return b.getAttribute("aria-selected") === "true"; })[0] || buttons[0]);
+  }
+
+  // toast(message, {type?: "success" | "error", title?, duration?}) — a
+  // .toast in a shared .toaster at the bottom of the page.
+  function toast(message, opts) {
+    opts = opts || {};
+    var toaster = document.querySelector(".toaster") || document.body.appendChild(node("div", "toaster"));
+    var item = node("div", "toast");
+    item.setAttribute("role", opts.type === "error" ? "alert" : "status");
+    item.setAttribute("aria-hidden", "true");
+    if (opts.type) item.setAttribute("data-type", opts.type);
+    var content = node("div", "toast-content");
+    var section = node("section");
+    if (opts.title) section.appendChild(node("h2", "", opts.title));
+    section.appendChild(node("p", "", message));
+    content.appendChild(section);
+    item.appendChild(content);
+    toaster.appendChild(item);
+    requestAnimationFrame(function () { item.setAttribute("aria-hidden", "false"); });
+    setTimeout(function () {
+      item.setAttribute("aria-hidden", "true");
+      setTimeout(function () { item.remove(); }, 400);
+    }, opts.duration || 3000);
+  }
+
+  // Dialogs are native <dialog class="dialog">: a [data-dialog-open="id"]
+  // anywhere opens one, a [data-dialog-close] inside closes it, and a click on
+  // its backdrop closes it too. Plain dialog.showModal()/close() still work.
+  document.addEventListener("click", function (e) {
+    var target = e.target;
+    if (!(target instanceof Element)) return;
+    var opener = target.closest("[data-dialog-open]");
+    if (opener) {
+      var dialog = document.getElementById(opener.getAttribute("data-dialog-open"));
+      if (dialog && dialog.showModal && !dialog.open) dialog.showModal();
+      return;
+    }
+    var closer = target.closest("[data-dialog-close]");
+    if (closer && closer.closest("dialog")) {
+      closer.closest("dialog").close();
+      return;
+    }
+    if (target.tagName === "DIALOG" && target.classList.contains("dialog") && target.open) target.close();
+  });
+
+  // store(key, fallback) — JSON state in localStorage that never throws (a
+  // private window or a full quota falls back to memory): {get, set, update}.
+  function store(key, fallback) {
+    var memory;
+    // Set while the last write did not reach localStorage: what is stored
+    // there is older than memory until a write goes through again.
+    var unsaved = false;
+    var initial = function () { return fallback === undefined ? undefined : JSON.parse(JSON.stringify(fallback)); };
+    function get() {
+      if (!unsaved) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (raw != null) return JSON.parse(raw);
+        } catch (e) { /* storage unavailable: memory below */ }
+      }
+      return memory !== undefined ? memory : initial();
+    }
+    function set(value) {
+      memory = value;
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        unsaved = false;
+      } catch (e) {
+        unsaved = true;
+      }
+      return value;
+    }
+    return { get: get, set: set, update: function (fn) { return set(fn(get())); } };
+  }
+
+  // mock — seeded random data, so a page asks for 90 days of numbers in one
+  // line instead of writing them out; the same seed gives the same data.
+  var FIRST = ["Ana", "Bruno", "Carla", "Diego", "Eduarda", "Felipe", "Gabriela", "Henrique", "Isabela", "João",
+    "Larissa", "Marcos", "Natália", "Otávio", "Paula", "Rafael", "Sofia", "Thiago", "Vanessa", "Lucas"];
+  var LAST = ["Silva", "Santos", "Oliveira", "Souza", "Pereira", "Costa", "Rodrigues", "Almeida", "Nascimento", "Lima",
+    "Araújo", "Fernandes", "Carvalho", "Gomes", "Martins", "Rocha", "Ribeiro", "Barbosa"];
+  var INITIALS = "ABCDEFGHIJLMNOPRSTV".split("");
+  var CITIES = ["São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Curitiba, PR", "Porto Alegre, RS",
+    "Salvador, BA", "Recife, PE", "Fortaleza, CE", "Brasília, DF", "Goiânia, GO", "Campinas, SP", "Florianópolis, SC",
+    "Manaus, AM", "Belém, PA", "Vitória, ES", "Natal, RN"];
+
+  function createMock(seed) {
+    var state = seed >>> 0;
+    var names = 0;
+    function random() {
+      state = (state + 0x6d2b79f5) >>> 0;
+      var t = state;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    function int(min, max) { return min + Math.floor(random() * (max - min + 1)); }
+    function pick(list) { return list[Math.floor(random() * list.length)]; }
+    var mock = {
+      seed: function (value) { state = value >>> 0; names = 0; return mock; },
+      random: random,
+      int: int,
+      float: function (min, max, decimals) {
+        var factor = Math.pow(10, decimals == null ? 2 : decimals);
+        return Math.round((min + random() * (max - min)) * factor) / factor;
+      },
+      pick: pick,
+      chance: function (p) { return random() < p; },
+      // There are 360 first/last pairs. A page that draws until the name is
+      // new (do { … } while (used.has(name))) froze the tab past them, so
+      // later draws widen the space: a second surname after 200 (6,480), a
+      // middle initial after 4,000.
+      name: function () {
+        names++;
+        var middle = names > 4000 ? pick(INITIALS) + ". " : "";
+        return pick(FIRST) + " " + middle + (names > 200 ? pick(LAST) + " " : "") + pick(LAST);
+      },
+      city: function () { return pick(CITIES); },
+      // series(n, {start, trend, noise, min, decimals}) — a walk: each value
+      // moves by trend (fraction per step) plus up to ±noise of itself.
+      series: function (n, opts) {
+        opts = opts || {};
+        var value = opts.start == null ? 100 : opts.start;
+        var factor = Math.pow(10, opts.decimals || 0);
+        var out = [];
+        for (var i = 0; i < n; i++) {
+          out.push(Math.max(opts.min == null ? 0 : opts.min, Math.round(value * factor) / factor));
+          value = value * (1 + (opts.trend || 0)) * (1 + (random() * 2 - 1) * (opts.noise == null ? 0.08 : opts.noise));
+        }
+        return out;
+      },
+      // dates(n, {end?, step?: "day" | "week" | "month"}) — ISO dates
+      // (YYYY-MM-DD), oldest first, ending at end (default: today).
+      dates: function (n, opts) {
+        opts = opts || {};
+        var end = opts.end ? new Date(opts.end) : new Date();
+        var out = [];
+        for (var i = n - 1; i >= 0; i--) {
+          var d = new Date(end.getTime());
+          if (opts.step === "month") d.setMonth(d.getMonth() - i);
+          else d.setDate(d.getDate() - i * (opts.step === "week" ? 7 : 1));
+          out.push(d.toISOString().slice(0, 10));
+        }
+        return out;
+      },
+      // rows(n, spec) — n objects; each spec value is a function(i), a list
+      // to pick from, or a constant.
+      rows: function (n, spec) {
+        var out = [];
+        for (var i = 0; i < n; i++) {
+          var row = {};
+          for (var key in spec) {
+            var value = spec[key];
+            row[key] = typeof value === "function" ? value(i) : Array.isArray(value) ? pick(value) : value;
+          }
+          out.push(row);
+        }
+        return out;
+      }
+    };
+    return mock;
+  }
+
+  window.skipShell = { fmt: fmt };
+  window.skipChart = { bar: bar, line: line, donut: donut };
+  window.skipUI = { table: table, kpis: kpis, badge: badge, tabs: tabs, toast: toast };
+  window.skipStore = store;
+  window.skipMock = createMock(20261022);
+})();
+
+</script>
+<style>
+:root {
+--accent: #D5001C;
+--accent-text: #B0001A;
+--accent-contrast: #ffffff;
+--bg: #F5F5F5;
+--surface: #ffffff;
+--text: #000000;
+--text-muted: #4a4a4a;
+--border: #e2e2e2;
+font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+html { background: #494949; }
+body {
+background: #494949;
+min-height: 100vh;
+color: #FFFFFF;
+letter-spacing: 0.01em;
+transition: color .3s ease;
+}
+body.is-dark-zone { background: #494949; }
+.zone-top { background: #686868; }
+.zone-top > * { color: #FFFFFF; }
+.hero-banner { position: relative; margin-top: 36px; height: 420px; overflow: hidden; background: #0d0d0d; }
+.hero-banner::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(13,13,13,0.95) 0%, rgba(13,13,13,0.7) 40%, rgba(13,13,13,0.2) 70%, rgba(13,13,13,0.1) 100%); pointer-events: none; }
+.hero-slides { position: absolute; inset: 0; z-index: 0; }
+.hero-car { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; background: #0d0d0d; }
+.hero-slide.is-active { opacity: 1; visibility: visible; }
+.hero-fallback { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: #FFFFFF; font-size: 0.9rem; z-index: 0; }
+.hero-car.is-active, .hero-slide.is-active { opacity: 1; visibility: visible; }
+.hero-caption { position: absolute; left: 24px; bottom: 16px; z-index: 4; color: #FFFFFF; font-size: 0.78rem; font-weight: 400; background: rgba(0,0,0,0.35); padding: 3px 10px; border-radius: 2px; font-family: 'Inter', sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+.hero-emblem { position: absolute; top: 16px; left: 18px; width: 22px; height: 22px; z-index: 2; }
+.hero-text { position: absolute; left: 24px; top: 24px; bottom: 56px; z-index: 2; color: #FFFFFF; width: 46%; max-width: 46%; white-space: normal; background: transparent; opacity: 1; padding: 0; overflow: visible; text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.9); }
+.hero-eyebrow { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: #FFFFFF; margin: 0 0 12px 30px; font-family: 'Inter', sans-serif; font-weight: 400; }
+.hero-title { font-size: 30px; font-weight: 800; margin: 0 0 12px; color: #FFFFFF; font-family: 'Inter', sans-serif; text-transform: none; letter-spacing: 0; line-height: 1.15; white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.9); }
+.hero-caption { background: rgba(0,0,0,0.6); }
+.hero-sub { font-size: 13px; font-weight: 400; color: #FFFFFF; margin: 0; font-family: 'Inter', sans-serif; line-height: 1.6; }
+.hero-line { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #D5001C; z-index: 3; }
+.hero-slide { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility .8s ease; }
+.hero-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; background: rgba(0,0,0,0.35); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+.hero-prev { left: 8px; }
+.hero-next { right: 8px; }
+.hero-nav:focus-visible { outline: 2px solid #D5001C; outline-offset: 2px; }
+.hero-dots { position: absolute; right: 18px; top: 18px; z-index: 4; display: flex; gap: 6px; }
+.hero-dot { width: 9px; height: 9px; border-radius: 50%; border: 1px solid #FFFFFF; background: transparent; padding: 0; cursor: pointer; }
+.hero-dot[aria-selected="true"] { background: #D5001C; border-color: #D5001C; }
+.hero-dot:focus-visible { outline: 2px solid #D5001C; outline-offset: 2px; }
+
+.hero-share { position: absolute; top: -40px; right: 0; background: #1A1A1A; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; padding: 6px 14px; font-size: 0.8rem; font-family: 'Inter', sans-serif; cursor: default; }
+@media (max-width: 900px) {
+.hero-banner { height: 380px; }
+.hero-text { width: 52%; max-width: 52%; }
+.hero-title { font-size: 26px; white-space: normal; }
+}
+@media (max-width: 640px) {
+.hero-banner { height: 400px; }
+.hero-text { width: auto; max-width: none; left: 12px; right: 12px; top: 12px; bottom: auto; padding: 14px 16px; max-height: 58%; }
+.hero-caption { left: 12px; bottom: 12px; font-size: 0.85rem; }
+.hero-title { font-size: 22px; white-space: normal; }
+.hero-text { width: 80%; max-width: 80%; }
+.hero-sub { font-size: 15px; }
+.hero-share { position: static; margin-bottom: 8px; }
+}
+main, .page-header, .shell-footer { position: relative; }
+.page-header { background: transparent; border-bottom: 1px solid #d6d6d6; }
+.card-soft, .kpi-grid .kpi, .panel { transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
+body .card-soft, body .kpi-grid .kpi, body .panel, body .insight-box {
+background: rgba(0,0,0,0.12);
+border: 1px solid rgba(255,255,255,0.18);
+color: #FFFFFF;
+box-shadow: none;
+}
+body .insight-box { border-left: 2px solid #D5001C; }
+body .input, body select { background: rgba(0,0,0,0.2); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.18); }
+body .filters-bar .filter-select { background: #FFFFFF; color: #1A1A1A; border: 1px solid #BDBDBD; border-radius: 12px; }
+body .filters-bar .filter-select:hover, body .filters-bar .filter-select:focus-visible, body .filters-bar .filter-select:focus { border-color: #D5001C; outline: 1px solid #D5001C; outline-offset: 2px; }
+body .filters-bar .filter-select option { background: #FFFFFF; color: #1A1A1A; }
+body .filters-bar .filter-select:disabled { background: #F2F2F2; color: #1A1A1A; }
+body .filters-bar label { color: #FFFFFF !important; }
+body .filters-bar .hint { color: #E6E6E6 !important; }
+body .btn[data-variant="outline"], body .btn[data-variant="ghost"] { color: #FFFFFF; border-color: rgba(255,255,255,0.18); background: rgba(0,0,0,0.2); }
+body .shell-table th, body .shell-table td { color: #FFFFFF; border-color: rgba(255,255,255,0.18); background: rgba(0,0,0,0.2); }
+body .hint, body .muted, body .kpi-label, body .page-header p, body .shell-footer p { color: #E6E6E6 !important; }
+body .chart-svg text { fill: #E6E6E6; }
+body .chart-svg line { stroke: #E6E6E6; }
+body .bar-track { background: rgba(0,0,0,0.2); }
+body .rank-list li { border-color: rgba(255,255,255,0.18); }
+body .eyebrow-pill { color: #FFFFFF; border-color: #D5001C; }
+body.is-dark-zone h1, body.is-dark-zone h2, body.is-dark-zone h3,
+body.is-dark-zone .kpi-value, body.is-dark-zone .kpi-label,
+body.is-dark-zone .card-soft p, body.is-dark-zone .card-soft td,
+body.is-dark-zone .card-soft th, body.is-dark-zone .card-soft li,
+body.is-dark-zone .card-soft strong, body.is-dark-zone .card-soft span,
+body.is-dark-zone .panel label, body.is-dark-zone .panel select,
+body.is-dark-zone .panel span, body.is-dark-zone .page-header h1,
+body.is-dark-zone .page-header p, body.is-dark-zone .shell-footer p,
+body.is-dark-zone .muted, body.is-dark-zone .hint { color: #FFFFFF; }
+body.is-dark-zone .hint, body.is-dark-zone .muted, body.is-dark-zone .kpi-label,
+body.is-dark-zone .page-header p, body.is-dark-zone .shell-footer p { color: #B0B0B0 !important; }
+body.is-dark-zone .chart-svg text { fill: #B0B0B0; }
+body.is-dark-zone .chart-svg line { stroke: #4a4a4a; }
+body.is-dark-zone .bar-track { background: #2a2a2a; }
+body.is-dark-zone .rank-list li { border-color: #2b2b2b; }
+body.is-dark-zone .insight-box { background: rgba(255,255,255,0.04); }
+body.is-dark-zone .btn[data-variant="outline"], body.is-dark-zone .btn[data-variant="ghost"] { color: #FFFFFF; border-color: #4a4a4a; }
+body.is-dark-zone .input, body.is-dark-zone select { background: rgba(255,255,255,0.04); color: #FFFFFF; border-color: #3a3a3a; }
+body.is-dark-zone .shell-table th, body.is-dark-zone .shell-table td { color: #FFFFFF; border-color: #2b2b2b; }
+body.is-dark-zone .eyebrow-pill { color: #FFFFFF; }
+h1, h2, h3, .label-caps { text-transform: uppercase; letter-spacing: 0.14em; font-weight: 500; }
+
+.eyebrow-pill { display: inline-block; border: 1px solid var(--accent); color: var(--accent-text); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; }
+.card-soft { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; }
+.kpi-grid .kpi { border-radius: 16px; border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.12); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.kpi-value { font-weight: 500; }
+.filter-select { min-width: 160px; border-radius: 12px; background: #FFFFFF; color: #1A1A1A; border: 1px solid #BDBDBD; }
+.btn { border-radius: 2px; transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+.btn:focus-visible, .input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.insight-box { border-left: 2px solid var(--accent); padding: 12px 16px; background: #fafafa; font-size: 0.9rem; line-height: 1.6; }
+.heat-table td { text-align: center; font-variant-numeric: tabular-nums; }
+.heat-cell { display: inline-block; min-width: 42px; padding: 4px 6px; border-radius: 2px; font-size: 0.78rem; }
+.rank-list li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+.rank-list li:last-child { border-bottom: none; }
+.bar-track { height: 6px; background: #ececec; border-radius: 1px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent); transition: width .4s ease; }
+.section-card { padding: 24px; }
+.section-head { margin-bottom: 16px; }
+.hint { font-size: 0.78rem; color: var(--text-muted); }
+.status-pill { display: inline-block; font-size: 0.72rem; padding: 2px 8px; border: 1px solid var(--border); border-radius: 2px; letter-spacing: 0.04em; }
+.chart-svg { width: 100%; height: auto; display: block; }
+.chart-svg text { font-family: inherit; fill: var(--text-muted); font-size: 11px; }
+.legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.muted-empty { color: var(--text-muted); font-size: 0.85rem; padding: 16px 0; }
+.two-col { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 900px) { .two-col { grid-template-columns: 1fr 1fr; } }
+@media print {
+.no-print, .filters-bar, .page-header .actions { display: none !important; }
+body { background: #fff; }
+.card-soft, .kpi { border: 1px solid #ccc !important; }
+}
+</style>
+</head>
+<body>
+<header class="page-header zone-top">
+<div class="shell-container p-4">
+<div class="hero-banner" role="banner">
+<span class="hero-share" aria-hidden="true">Compartilhar</span>
+<div class="hero-slides" id="heroSlides">
+<div class="hero-car hero-slide is-active" data-caption="Porsche 911 GT3 RS" aria-hidden="true"></div>
+<div class="hero-car hero-slide" data-caption="Porsche Macan Turbo" aria-hidden="true"></div>
+</div>
+<button type="button" class="hero-nav hero-prev" id="heroPrev" aria-label="Veículo anterior">&#8249;</button>
+<button type="button" class="hero-nav hero-next" id="heroNext" aria-label="Próximo veículo">&#8250;</button>
+<div class="hero-dots" id="heroDots" role="tablist" aria-label="Escolher veículo"></div>
+
+<div class="hero-text">
+<p class="hero-eyebrow">PORSCHE SALES INTELLIGENCE</p>
+<h2 class="hero-title">Performance comercial com precisão esportiva</h2>
+<p class="hero-sub">Dashboard executivo para responder quais modelos lideram por cidade, qual ano de modelo mais saiu e quais oportunidades aparecem no mix local de vendas.</p>
+</div>
+<div class="hero-line"></div>
+<div class="hero-caption" id="heroCaption" aria-live="polite">Porsche 911 GT3 RS</div>
+</div>
+<div class="row between items-center gap-3">
+<div>
+
+<h1 class="text-2xl mt-2 mb-0">Vendas Porsche</h1>
+<p class="muted text-sm mt-1 mb-0">Painel analítico de vendas de veículos Porsche • Valores em US$ • Data de referência 15/11/2026</p>
+</div>
+<div class="row gap-2 actions no-print">
+<button class="btn" data-variant="outline" data-size="sm" id="btnCopy">Copiar resumo</button>
+<button class="btn" data-variant="outline" data-size="sm" id="btnPrint">Imprimir / PDF</button>
+<button class="btn" data-variant="ghost" data-size="sm" id="btnReset">Limpar filtros</button>
+</div>
+</div>
+</div>
+</header>
+
+<main class="shell-container p-4">
+<section class="panel p-4 mt-4 filters-bar" aria-labelledby="filtrosTitulo">
+<div class="row between items-center mb-3">
+<div>
+<h2 id="filtrosTitulo" class="text-sm mb-0">Filtros</h2>
+<p class="hint mb-0">Todas as seções e indicadores reagem aos filtros ao mesmo tempo.</p>
+</div>
+<span class="status-pill" id="filterCount">Sem filtros ativos</span>
+</div>
+<div class="cols-5 gap-3">
+<div class="field">
+<label for="fModel" class="text-xs label-caps">Modelo</label>
+<select class="input filter-select" id="fModel"></select>
+<span class="hint">Entre os 40 modelos distintos</span>
+</div>
+<div class="field">
+<label for="fYear" class="text-xs label-caps">Ano-modelo</label>
+<select class="input filter-select" id="fYear"></select>
+<span class="hint">Ano de fabricação do veículo</span>
+</div>
+<div class="field">
+<label for="fCity" class="text-xs label-caps">Cidade</label>
+<select class="input filter-select" id="fCity"></select>
+<span class="hint">Cidade da venda</span>
+</div>
+<div class="field">
+<label for="fPay" class="text-xs label-caps">Forma de pagamento</label>
+<select class="input filter-select" id="fPay"></select>
+<span class="hint">Meio de pagamento acordado</span>
+</div>
+<div class="field">
+<label for="fPeriod" class="text-xs label-caps">Período</label>
+<select class="input filter-select" id="fPeriod">
+<option value="all">Todo o período</option>
+<option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option>
+</select>
+<span class="hint">Afeta análises temporais</span>
+</div>
+</div>
+</section>
+
+<section class="mt-4" aria-labelledby="kpiTitulo">
+<h2 id="kpiTitulo" class="text-sm mb-1">Indicadores principais</h2>
+<p class="hint mb-3">Resumo dos registros filtrados. Receita não entregue inclui pendências e pedidos em trânsito.</p>
+<div id="kpis" class="kpi-grid"></div>
+</section>
+
+<section class="card-soft section-card mt-4">
+<div class="section-head">
+<h2 class="text-sm mb-1">1. Principais modelos vendidos por cidade</h2>
+<p class="hint mb-0">Heatmap de unidades por cidade e modelo, com ranking dos modelos líderes em cada cidade.</p>
+</div>
+<div id="heatmapWrap" class="table-responsive"></div>
+<div class="insight-box mt-3" id="insight1"></div>
+</section>
+
+<section class="two-col mt-4">
+<div class="card-soft section-card">
+<div class="section-head">
+<h2 class="text-sm mb-1">2. Ano-modelo mais vendido no período</h2>
+<p class="hint mb-0">Unidades vendidas por ano-modelo, respeitando o filtro de período.</p>
+</div>
+<div id="chartYear"></div>
+<div class="insight-box mt-3" id="insight2"></div>
+</div>
+<div class="card-soft section-card">
+<div class="section-head">
+<h2 class="text-sm mb-1">3. Carros populares por cidade</h2>
+<p class="hint mb-0">Top 3 modelos por cidade, com volume de unidades e receita em US$.</p>
+</div>
+<div id="popularCities" class="stack gap-3"></div>
+<div class="insight-box mt-3" id="insight3"></div>
+</div>
+</section>
+
+<section class="card-soft section-card mt-4">
+<div class="section-head">
+<h2 class="text-sm mb-1">4. Receita travada em pedidos não entregues</h2>
+<p class="hint mb-0">Receita por status de entrega e cruzamento com a forma de pagamento. Pendente = todos os status exceto Delivered e Cancelled.</p>
+</div>
+<div class="two-col">
+<div>
+<div id="chartStatus"></div>
+</div>
+<div>
+<div class="label-caps text-xs mb-2">Forma de pagamento x receita pendente</div>
+<div id="payTable"></div>
+</div>
+</div>
+<div class="insight-box mt-3" id="insight4"></div>
+</section>
+
+<section class="two-col mt-4">
+<div class="card-soft section-card">
+<div class="section-head">
+<h2 class="text-sm mb-1">5a. Vendedores com melhor desempenho</h2>
+<p class="hint mb-0">Ranking por receita (US$) e quantidade de vendas.</p>
+</div>
+<div id="sellerRank"></div>
+</div>
+<div class="card-soft section-card">
+<div class="section-head">
+<h2 class="text-sm mb-1">5b. Estados com melhor desempenho</h2>
+<p class="hint mb-0">Ranking por receita (US$) e volume de unidades.</p>
+</div>
+<div id="stateRank"></div>
+</div>
+</section>
+
+<section class="card-soft section-card mt-4">
+<div class="section-head">
+<h2 class="text-sm mb-1">6. Preço x quilometragem por ano-modelo</h2>
+<p class="hint mb-0">Dispersão de preço e quilometragem, colorida por ano-modelo. Cada ponto é uma venda com data válida.</p>
+</div>
+<div id="scatter"></div>
+<div class="two-col mt-4">
+<div>
+<div class="label-caps text-xs mb-2">Preço médio por ano-modelo</div>
+<div id="avgYear"></div>
+</div>
+<div>
+<div class="label-caps text-xs mb-2">Ranking de modelos por receita</div>
+<div id="modelRank"></div>
+</div>
+</div>
+<div class="insight-box mt-3" id="insight6"></div>
+</section>
+
+<section class="card-soft section-card mt-4" aria-labelledby="execTitulo">
+<div class="section-head">
+<h2 id="execTitulo" class="text-sm mb-1">Leitura Executiva</h2>
+<p class="hint mb-0">Recomendações para a equipe de vendas</p>
+</div>
+<div class="stack gap-4">
+<div>
+<h3 class="text-xs mb-2" style="color:#D5001C;">1. Tração de vendas por modelo</h3>
+<ul class="hint mb-0" style="color:#E6E6E6; line-height:1.6;">
+<li>Seis modelos empataram com 4 vendas cada: Taycan 4S, Cayenne Coupe, Cayenne E-Hybrid, Macan Electric, Panamera e Macan T.</li>
+<li>Em receita, o 911 Dakar lidera, com 3 vendas e US$ 810.600.</li>
+<li>Recomendação: concentrar demonstrações e atendimento nos modelos que empatam em volume e reservar a abordagem de alto ticket para os 911 de maior preço.</li>
+</ul>
+</div>
+<div>
+<h3 class="text-xs mb-2" style="color:#D5001C;">2. Concentração geográfica</h3>
+<ul class="hint mb-0" style="color:#E6E6E6; line-height:1.6;">
+<li>As vendas estão concentradas em poucos estados: Califórnia (CA) e Texas (TX) somam 30 das 100 vendas, e os cinco primeiros estados (CA, TX, AZ, FL e NC) somam 48 vendas.</li>
+<li>Seguem Arizona (AZ, 7), Flórida (FL, 6) e Carolina do Norte (NC, 5).</li>
+<li>Recomendação: criar um plano de ação para ampliar a divulgação e as vendas nos estados com menor volume, com foco em campanhas regionais, parcerias com revendedores locais e metas por estado, e manter o acompanhamento da equipe nos estados de maior concentração.</li>
+</ul>
+</div>
+<div>
+<h3 class="text-xs mb-2" style="color:#D5001C;">3. Preferência de pagamento</h3>
+<ul class="hint mb-0" style="color:#E6E6E6; line-height:1.6;">
+<li>Wire Transfer lidera com 26 vendas, seguido de cartão de crédito (15), financiamento (13), à vista (12), Lease (10) e Bank Transfer (10).</li>
+<li>Recomendação: padronizar o processo de transferências com conferência de dados e oferecer financiamento de forma ativa, já que ele aparece em 13 vendas.</li>
+</ul>
+</div>
+<div>
+<h3 class="text-xs mb-2" style="color:#D5001C;">4. Entregas e pendências</h3>
+<ul class="hint mb-0" style="color:#E6E6E6; line-height:1.6;">
+<li>Das 100 vendas, 41 estão entregues e 7 foram canceladas (7%).</li>
+<li>Há 17 pendentes, 15 em trânsito e 5 aguardando entrega, somando 37 vendas em andamento.</li>
+<li>Recomendação: criar uma rotina semanal de acompanhamento dessas 37 vendas, priorizando as pendentes, e revisar os motivos dos cancelamentos.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<footer class="shell-footer mt-6 pt-4 pb-6">
+<p class="hint text-center mb-0">Base fictícia de 105 vendas Porsche. Registros com data INVALID entram nos totais e filtros, mas ficam fora dos gráficos e KPIs que dependem de período.</p>
+</footer>
+</main>
+
+<dialog class="dialog" id="dlgDetail">
+<div>
+<header>
+<h2 class="text-sm">Detalhes da venda</h2>
+<p class="hint">Registros filtrados atualmente</p>
+</header>
+<section id="detailBody"></section>
+<footer class="row gap-2 mt-3">
+<button class="btn" data-variant="outline" data-dialog-close>Fechar</button>
+</footer>
+</div>
+</dialog>
+
+<script>
+window.addEventListener('scroll', () => {
+const zone = window.scrollY > window.innerHeight * 0.6;
+document.body.classList.toggle('is-dark-zone', zone);
+}, { passive: true });
+const RAW = `6|INVALID|718 Cayman|2022|79500|9800|Credit Card|Boston|MA|Kevin|Delivered
+7|2024-03-14|911 Turbo S|2024|235000|1200|Wire Transfer|Seattle|WA|Amanda Scott|Delivered
+8|2024-04-18|Cayenne Coupe|2023|112750|6400|Financing|Austin|TX|Brian Hall|In Transit
+9|INVALID|Macan S|2021|68900|28|Cash|Denver|CO|Jessica|Pending
+10|2024-05-22|Taycan 4S|2024|121000|0|Bank Transfer|Los Angeles|CA|Thomas King|Delivered
+11|2024-08-06|Panamera 4|2023|104500|14500|Credit Card|Miami|FL|Lisa Ray|Cancelled
+12|2024-07-11|911 Carrera S|2020|96300|41000|Lease|New York|NY|Mark Evans|Delivered
+13|INVALID|Cayenne E-Hybrid|2022|89750|11744|Wire Transfer|San Diego|CA|Nancy Reed|Pending Approval
+14|2024-08-19|718 Boxster|2021|73500|22300|Debit Card|Chicago|IL|George Bell|Shipped
+15|2024-09-02|Macan GTS|2024|95000|3500|Financing|Phoenix|AZ|Helen Brooks|In Transit
+16|2024-09-17|Taycan Turbo|2023|153200.5|11|ACH Payment|Dallas|TX|Samuel Price|Delivered
+17|INVALID|911 GT3|2024|241000|750|Wire Transfer|Las Vegas|NV|Peter Ford|Pending
+18|2024-05-11|Panamera Turbo S|2022|132000|19250|Cash|San Jose|CA|Angela Green|Delivered
+19|2024-12-12|Cayenne Turbo GT|2024|188000|2100|Crypto Payment|Houston|TX|Victor Stone|Awaiting Delivery
+20|2024-12-25|911 Carrera Cabriolet|2023|127800|12000|Credit Card|Atlanta|GA|Rachel Turner|Delivered
+21|2025-01-06|Macan|2021|58900|33700|Bank Transfer|Orlando|FL|Chris Moore|Pending
+22|INVALID|718 Spyder RS|2024|164000|900|Financing|Portland|OR|Laura Hill|In Transit
+23|2025-02-14|Taycan Cross Turismo|2023|118500|7800|Wire Transfer|Charlotte|NC|Martin Young|Delivered
+24|INVALID|Cayenne S|2022|91300|16000|Credit Card|Nashville|TN|Diana Cooper|Pending
+25|2025-03-21|911 Targa 4S|2024|158750|2500|Lease|Minneapolis|MN|Steve Gray|Delivered
+26|2025-03-28|Panamera|2020|72000|49000|Bank Transfer|Philadelphia|PA|Olivia Ross|Cancelled
+27|2025-04-09|Macan Electric|2025|86500|0|Wire Transfer|San Antonio|TX|Patrick Wood|Delivered
+28|INVALID|911 Dakar|2024|270000|1050|Cash|Salt Lake City|UT|Karen Diaz|Awaiting Pickup
+29|2025-05-12|Taycan GTS|2023|139000|6250|Financing|Raleigh|NC|Justin Cox|In Transit
+30|2025-06-18|Cayenne|2021|76800|38400|Credit Card|Detroit|MI|Betty Ward|Delivered
+31|INVALID|718 Cayman GT4 RS|2024|173600|400|Wire Transfer|Columbus|OH|Gary Reed|Pending
+32|2025-07-07|911 Carrera GTS|2022|119900|13600|Cash|Indianapolis|IN|Maria Foster|Delivered
+33|2025-07-22|Panamera 4 E-Hybrid|2023|109250|8900|Lease|Fort Worth|TX|Harold Bennett|In Transit
+34|2025-08-14|Macan T|2022|82000|21750|Wire Transfer|Jacksonville|FL|Teresa Cook|Delivered
+35|2025-09-01|Taycan Turbo S|2025|214000|0|Crypto Payment|San Diego|CA|Frank Morgan|Pending Review
+36|INVALID|911 Carrera|2024|124500|4800|Credit Card|Tampa|FL|Natalie|Delivered
+37|2025-09-18|Cayenne S|2023|98200|12200|Bank Transfer|Sacramento|CA|Eric Woods|Pending
+38|2025-10-04|Macan|2022|67500|24100|Financing|Cleveland|OH|Patricia Fox|Delivered
+39|2025-10-12|Taycan|2025|116900|0|Wire Transfer|Milwaukee|WI|Alan Price|In Transit
+40|2025-10-29|Panamera 4S|2024|112000|10|Cash|Kansas City|MO|Sandra Hill|Delivered
+41|2025-02-11|718 Boxster|2021|74000|31000|Debit Card|Omaha|NE|Victor Lee|Cancelled
+42|2025-11-16|911 Turbo|2024|198300|2400|Wire Transfer|Albuquerque|NM|Monica|Awaiting Delivery
+43|INVALID|Cayenne Coupe|2023|103750|6773|Wire Transfer|Tucson|AZ|Gregory Adams|Pending Approval
+44|INVALID|Macan GTS|2024|93600|5800|Financing|Fresno|CA|Laura West|Shipped
+45|2025-12-07|Taycan 4S|2025|129000|0|ACH Payment|Virginia Beach|VA|Henry King|In Transit
+46|2025-12-22|Panamera Turbo|2022|136000|18400|Credit Card|Colorado Springs|CO|Amber Clark|Delivered
+47|INVALID|911 GT3 RS|2024|286500|700|Wire Transfer|Arlington|TX|Peter Lane|Pending
+48|2026-01-08|Cayenne E-Hybrid|2023|92800|15000|Lease|Bakersfield|CA|Grace Morris|Delivered
+49|2026-01-15|Macan T|2022|72400|19750|Cash|Mesa|AZ|Kyle Perry|Awaiting Pickup
+50|2026-01-28|Taycan Turbo|2025|158500|3200|Crypto Payment|Atlanta|GA|Megan Reed|Delivered
+51|2026-02-03|718 Cayman|2021|69900|27600|Bank Transfer|Long Beach|CA|Carl Simmons|Pending
+52|INVALID|911 Targa 4|2024|141250|2100|Financing|Oakland|CA|Linda Cole|In Transit
+53|2026-02-19|Panamera|2020|71500|52000|Wire Transfer|Tulsa|OK|Martin Brooks|Delivered
+54|2026-02-25|Cayenne Turbo|2023|146800|11300|Credit Card|Wichita|KS|Diana Long|Pending
+55|2026-03-01|Macan Electric|2025|89700|0|Lease|New Orleans|LA|Steve Ross|Delivered
+56|2026-03-14|911 Carrera S|2022|104600|15900|Bank Transfer|Honolulu|HI|Olivia Cruz|Cancelled
+57|INVALID|Taycan GTS|2024|142000|6600|Wire Transfer|Anaheim|CA|Patrick Wood|Delivered
+58|2026-04-08|Cayenne|2021|78400|40250|Cash|Henderson|NV|Karen Stone|Awaiting Review
+59|INVALID|718 Spyder RS|2025|169000|850|Financing|Lexington|KY|Justin Fox|In Transit
+60|2026-04-21|911 Dakar|2024|268900|1400|Credit Card|Riverside|CA|Betty James|Delivered
+61|2026-04-29|Panamera 4|2023|101300|12700|Wire Transfer|Corpus Christi|TX|Gary Price|Pending
+62|2026-05-05|Macan S|2021|66750|29800|Cash|St. Louis|MO|Maria Green|Delivered
+63|2026-05-14|Taycan Cross Turismo|2024|127900|7500|Lease|Pittsburgh|PA|Harold Young|In Transit
+64|2026-05-23|Cayenne Turbo GT|2025|200000|1950|Wire Transfer|Cincinnati|OH|Teresa Ward|Delivered
+65|2026-06-02|911 Carrera Cabriolet|2023|132000|8800|Crypto Payment|Anchorage|AK|Frank Reed|Pending Review
+66|2026-06-15|718 Cayman GT4 RS|2024|176400|600|Credit Card|Plano|TX|Angela Moore|Delivered
+67|INVALID|Panamera 4 E-Hybrid|2022|108500|16200|Bank Transfer|Newark|NJ|Rachel West|Cancelled
+68|2026-07-07|Macan|2021|59000|36000|Financing|Greensboro|NC|Thomas Fox|Awaiting Delivery
+69|2026-07-20|Taycan Turbo S|2025|218000|0|Wire Transfer|Lincoln|NE|Lisa Dunn|Pending
+70|INVALID|Cayenne S|2024|99950|5300|Debit Card|Jersey City|NJ|Brian Allen|Delivered
+71|2026-04-08|911 Carrera GTS|2024|121750|5872|Credit Card|Chandler|AZ|George Hall|Delivered
+72|2026-08-18|718 Boxster GTS|2023|91500|13300|Lease|Reno|NV|Helen King|Shipped
+73|2026-08-31|Panamera Turbo S|2022|134000|20100|Wire Transfer|Buffalo|NY|Samuel Price|In Transit
+74|2026-09-09|Macan GTS|2024|96800|0|ACH Payment|Durham|NC|Peter Ford|Delivered
+75|2026-09-17|Taycan 4S|2025|131600|2900|Wire Transfer|Laredo|TX|Angela Green|Pending Approval
+76|2026-09-28|Cayenne E-Hybrid|2023|94300|13100|Cash|Madison|WI|Victor Stone|Delivered
+77|2026-10-06|911 Turbo S|2025|242000|1100|Crypto Payment|Lubbock|TX|Rachel Turner|Awaiting Pickup
+78|2026-10-16|718 Cayman S|2022|82750|22500|Credit Card|Toledo|OH|Chris Moore|Cancelled
+79|2026-10-29|Macan Electric|2026|91300|0|Wire Transfer|Irvine|CA|Laura Hill|Delivered
+80|2026-11-03|Panamera|2021|79900|44800|Financing|Garland|TX|Martin Young|Pending
+81|INVALID|Cayenne Coupe|2024|111000|6700|Bank Transfer|Irving|TX|Diana Cooper|In Transit
+82|2026-12-11|911 Targa 4S|2023|156500|4200|Cash|Chesapeake|VA|Steve Gray|Delivered
+83|2026-12-24|Taycan|2025|119900|1250|Lease|Scottsdale|AZ|Olivia Ross|Pending
+84|INVALID|Macan T|2022|73200|18600|Wire Transfer|Norfolk|VA|Patrick Wood|Delivered
+85|2026-12-28|911 GT3|2024|224000|3000|Wire Transfer|Boise|ID|Karen Diaz|Awaiting Delivery
+86|2027-01-15|911 Carrera|2024|126900|7200|Credit Card|Orlando|FL|Kevin Brown|Delivered
+87|2027-01-29|Cayenne|2023|84500|21400|Bank Transfer|San Jose|CA|Amanda Lee|Pending
+88|2027-02-11|Macan S|2022|69800|26300|Financing|Tampa|FL|Brian Hall|Delivered
+89|INVALID|Taycan 4S|2025|132700|0|Wire Transfer|Denver|CO|Jessica White|In Transit
+90|2027-03-05|Panamera|2021|81000|42|Cash|Austin|TX|Thomas King|Delivered
+91|2027-03-18|718 Cayman|2023|78900|17500|Debit Card|Seattle|WA|Victor Lee|Cancelled
+92|2027-04-02|911 Turbo S|2026|249300|900|Wire Transfer|Boston|MA|Monica Green|Awaiting Delivery
+93|INVALID|Cayenne Coupe|2024|108750|5530|Wire Transfer|Phoenix|AZ|Gregory Adams|Pending Approval
+94|INVALID|Macan Electric|2026|92600|0|Financing|Chicago|IL|Laura West|Shipped
+95|2027-05-12|Taycan Turbo|2025|164000|0|ACH Payment|Dallas|TX|Henry King|In Transit
+96|2027-05-27|Panamera 4S|2024|119000|13400|Credit Card|San Francisco|CA|Amber Clark|Delivered
+97|INVALID|911 GT3|2026|232500|1700|Wire Transfer|Las Vegas|NV|Peter Lane|Pending
+98|2027-06-18|Cayenne E-Hybrid|2023|96800|14000|Lease|Charlotte|NC|Grace Morris|Delivered
+99|2027-07-03|Macan T|2022|74400|20750|Cash|Mesa|AZ|Kyle Perry|Awaiting Pickup
+100|2027-07-22|Taycan GTS|2025|148500|5200|Crypto Payment|Atlanta|GA|Megan Reed|Delivered
+101|2027-08-08|718 Boxster|2021|71900|29600|Bank Transfer|Long Beach|CA|Carl Simmons|Pending
+102|INVALID|911 Targa 4|2024|143250|3100|Financing|Oakland|CA|Linda Cole|In Transit
+103|2027-09-19|Panamera Turbo|2020|137500|48000|Wire Transfer|Tulsa|OK|Martin Brooks|Delivered
+104|2027-09-25|Cayenne Turbo GT|2025|204800|3300|Credit Card|Wichita|KS|Diana Long|Pending
+105|2027-10-01|911 Dakar|2024|271700|1050|Lease|New Orleans|LA|Steve Ross|Delivered`;
+
+const SALES = RAW.split('\n').map(line => {
+const p = line.split('|');
+const date = p[1] === 'INVALID' ? null : p[1];
+return {
+id: Number(p[0]),
+date,
+model: p[2],
+year: Number(p[3]),
+price: Number(p[4]),
+km: Number(p[5]),
+pay: p[6],
+city: p[7],
+state: p[8],
+seller: p[9],
+status: p[10]
+};
+});
+
+const PENDING_STATUS = ['Pending','In Transit','Awaiting Delivery','Awaiting Pickup','Awaiting Review','Pending Approval','Pending Review','Shipped'];
+const STATUS_ORDER = ['Delivered','Pending','In Transit','Awaiting Delivery','Awaiting Pickup','Awaiting Review','Pending Approval','Pending Review','Shipped','Cancelled'];
+
+const fmtUSD = v => 'US$ ' + Math.round(v).toLocaleString('pt-BR');
+const fmtNum = v => Math.round(v).toLocaleString('pt-BR');
+const fmtPct = v => (v * 100).toFixed(1).replace('.', ',') + '%';
+const fmtDate = iso => { if (!iso) return 'INVALID'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
+const COLORS = ['#D5001C','#1a1a1a','#7a7a7a','#b8b8b8','#e88a96','#4a4a4a','#d9b3b8','#2e2e2e','#9e9e9e'];
+
+const sel = {
+model: 'all', year: 'all', city: 'all', pay: 'all', period: 'all'
+};
+
+function uniq(arr) { return [...new Set(arr)].sort((a,b)=> String(a).localeCompare(String(b), 'pt-BR')); }
+
+function populateFilters() {
+const fill = (id, label, values) => {
+const el = document.getElementById(id);
+el.innerHTML = `<option value="all">Todos</option>` + values.map(v => `<option value="${v}">${v}</option>`).join('');
+};
+fill('fModel', 'Modelo', uniq(SALES.map(s => s.model)));
+fill('fYear', 'Ano', uniq(SALES.map(s => s.year)));
+fill('fCity', 'Cidade', uniq(SALES.map(s => s.city)));
+fill('fPay', 'Pagamento', uniq(SALES.map(s => s.pay)));
+['fModel','fYear','fCity','fPay','fPeriod'].forEach(id => {
+document.getElementById(id).addEventListener('change', e => {
+const key = {fModel:'model',fYear:'year',fCity:'city',fPay:'pay',fPeriod:'period'}[id];
+sel[key] = e.target.value;
+render();
+});
+});
+}
+
+function filtered() {
+return SALES.filter(s => {
+if (sel.model !== 'all' && s.model !== sel.model) return false;
+if (sel.year !== 'all' && String(s.year) !== String(sel.year)) return false;
+if (sel.city !== 'all' && s.city !== sel.city) return false;
+if (sel.pay !== 'all' && s.pay !== sel.pay) return false;
+return true;
+});
+}
+
+function periodFiltered(rows) {
+if (sel.period === 'all') return rows.filter(r => r.date);
+return rows.filter(r => r.date && r.date.startsWith(sel.period));
+}
+
+function countActive() {
+return Object.entries(sel).filter(([k,v]) => v !== 'all').length;
+}
+
+function renderKPIs(rows) {
+const total = rows.length;
+const revenue = rows.reduce((a,b)=> a + b.price, 0);
+const avg = total ? revenue / total : 0;
+const models = new Set(rows.map(r => r.model)).size;
+const delivered = rows.filter(r => r.status === 'Delivered').length;
+const pctDelivered = total ? delivered / total : 0;
+const unrealized = rows.filter(r => r.status !== 'Delivered' && r.status !== 'Cancelled').reduce((a,b)=> a + b.price, 0);
+const kpis = [
+{ label: 'Total de vendas', value: fmtNum(total), hint: 'Registros após os filtros' },
+{ label: 'Receita total', value: fmtUSD(revenue), hint: 'Soma de todos os preços' },
+{ label: 'Ticket médio', value: fmtUSD(avg), hint: 'Receita dividida pelas vendas' },
+{ label: 'Modelos distintos', value: fmtNum(models), hint: 'Modelos presentes na seleção' },
+{ label: '% entregue', value: fmtPct(pctDelivered), hint: `${delivered} vendas com status Delivered` },
+{ label: 'Receita não entregue', value: fmtUSD(unrealized), hint: 'Pendentes e em trânsito' }
+];
+document.getElementById('kpis').innerHTML = `<div class="shell-grid cols-3 gap-3">` + kpis.map(k => `
+<div class="kpi">
+<div class="kpi-label label-caps text-xs muted">${k.label}</div>
+<div class="kpi-value text-2xl mt-1">${k.value}</div>
+<div class="hint mt-1">${k.hint}</div>
+</div>`).join('') + `</div>`;
+}
+
+function renderHeatmap(rows) {
+const valid = rows;
+const cityCount = {};
+valid.forEach(r => { cityCount[r.city] = (cityCount[r.city]||0)+1; });
+const topCities = Object.entries(cityCount).sort((a,b)=>b[1]-a[1]).slice(0,8).map(e=>e[0]);
+const models = uniq(valid.map(r=>r.model));
+const matrix = {};
+valid.forEach(r => {
+matrix[r.city] = matrix[r.city] || {};
+matrix[r.city][r.model] = (matrix[r.city][r.model]||0)+1;
+});
+const max = Math.max(1, ...valid.map(r => 0)) ;
+let maxCell = 1;
+topCities.forEach(c => models.forEach(m => { const v = (matrix[c]||{})[m]||0; if (v>maxCell) maxCell=v; }));
+if (!topCities.length) {
+document.getElementById('heatmapWrap').innerHTML = `<p class="muted-empty">Nenhuma venda com os filtros atuais.</p>`;
+document.getElementById('insight1').textContent = 'Nenhuma venda corresponde aos filtros selecionados.';
+return;
+}
+const shownModels = models.filter(m => topCities.some(c => (matrix[c]||{})[m])).slice(0,12);
+const head = shownModels.map(m => `<th class="text-xs" style="font-weight:500;">${m}</th>`).join('');
+const body = topCities.map(c => `<tr><th class="text-left text-xs">${c}</th>` + shownModels.map(m => {
+const v = (matrix[c]||{})[m]||0;
+const alpha = v ? 0.12 + 0.75*(v/maxCell) : 0;
+const color = alpha > 0.5 ? '#fff' : '#000';
+return `<td><span class="heat-cell" style="background: rgba(213,0,28,${alpha.toFixed(2)}); color:${color};">${v||'–'}</span></td>`;
+}).join('') + `</tr>`).join('');
+document.getElementById('heatmapWrap').innerHTML = `<div style="overflow-x:auto;"><table class="shell-table heat-table"><thead><tr><th class="text-left text-xs">Cidade</th>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+
+const rankParts = topCities.slice(0,3).map(c => {
+const best = Object.entries(matrix[c]||{}).sort((a,b)=>b[1]-a[1])[0];
+return best ? `${c}: ${best[0]} (${best[1]} un.)` : null;
+}).filter(Boolean);
+document.getElementById('insight1').textContent =
+`Nas cidades com mais vendas, os modelos líderes são ${rankParts.join('; ')}. Heatmap mostra as ${topCities.length} cidades mais ativas e até 12 modelos.`;
+}
+
+function renderYearChart(rows) {
+const withDate = periodFiltered(rows);
+const byYear = {};
+withDate.forEach(r => { byYear[r.year] = (byYear[r.year]||0)+1; });
+const years = Object.keys(byYear).map(Number).sort((a,b)=>a-b);
+const el = document.getElementById('chartYear');
+if (!years.length) {
+el.innerHTML = `<p class="muted-empty">Sem vendas com data válida no período selecionado.</p>`;
+document.getElementById('insight2').textContent = 'Sem dados com data válida para o período escolhido.';
+return;
+}
+const max = Math.max(...years.map(y=>byYear[y]));
+const w = 480, h = 220, pad = 36, bw = (w - pad*2) / years.length - 12;
+const bars = years.map((y,i) => {
+const bh = ((byYear[y]/max)*(h-pad*2));
+const x = pad + i*((w-pad*2)/years.length) + 6;
+const yy = h - pad - bh;
+return `<g><rect x="${x}" y="${yy}" width="${bw}" height="${bh}" fill="${COLORS[0]}"/><text x="${x+bw/2}" y="${yy-6}" text-anchor="middle">${byYear[y]}</text><text x="${x+bw/2}" y="${h-pad+16}" text-anchor="middle">${y}</text></g>`;
+}).join('');
+el.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="Vendas por ano-modelo"><line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#ccc"/>${bars}</svg>`;
+const topYear = years.reduce((a,b)=> byYear[a] >= byYear[b] ? a : b);
+document.getElementById('insight2').textContent =
+`Ano-modelo mais vendido no período: ${topYear}, com ${byYear[topYear]} unidades de ${fmtNum(withDate.length)} vendas com data válida.`;
+}
+
+function renderPopularCities(rows) {
+const cities = {};
+rows.forEach(r => {
+cities[r.city] = cities[r.city] || { count:0, models:{} };
+cities[r.city].count++;
+const m = cities[r.city].models[r.model] || { units:0, revenue:0 };
+m.units++; m.revenue += r.price;
+cities[r.city].models[r.model] = m;
+});
+const ranked = Object.entries(cities).sort((a,b)=> b[1].count - a[1].count).slice(0,6);
+const el = document.getElementById('popularCities');
+if (!ranked.length) {
+el.innerHTML = `<p class="muted-empty">Nenhuma cidade encontrada com os filtros atuais.</p>`;
+document.getElementById('insight3').textContent = 'Sem cidades para exibir.';
+return;
+}
+el.innerHTML = ranked.map(([city, info]) => {
+const top = Object.entries(info.models).sort((a,b)=> b[1].units - a[1].units || b[1].revenue - a[1].revenue).slice(0,3);
+const maxU = top[0] ? top[0][1].units : 1;
+return `<div><div class="row between text-sm"><strong>${city}</strong><span class="hint">${info.count} vendas</span></div>` +
+top.map(([m,v]) => `<div class="mt-2"><div class="row between text-xs"><span>${m}</span><span>${v.units} un. • ${fmtUSD(v.revenue)}</span></div><div class="bar-track mt-1"><div class="bar-fill" style="width:${(v.units/maxU*100).toFixed(0)}%"></div></div></div>`).join('') + `</div>`;
+}).join('');
+const first = ranked[0];
+const topM = Object.entries(first[1].models).sort((a,b)=> b[1].units - a[1].units)[0];
+document.getElementById('insight3').textContent =
+`${first[0]} concentra mais vendas (${first[1].count}). O modelo com maior volume lá é ${topM[0]} (${topM[1].units} un.).`;
+}
+
+function renderStatus(rows) {
+const byStatus = {};
+rows.forEach(r => { byStatus[r.status] = (byStatus[r.status]||0)+r.price; });
+const entries = STATUS_ORDER.filter(s => byStatus[s]).map(s => [s, byStatus[s]]);
+const el = document.getElementById('chartStatus');
+if (!entries.length) {
+el.innerHTML = `<p class="muted-empty">Sem registros de status.</p>`;
+document.getElementById('payTable').innerHTML = '';
+document.getElementById('insight4').textContent = 'Sem receita para analisar.';
+return;
+}
+const max = Math.max(...entries.map(e=>e[1]));
+el.innerHTML = entries.map(([s,v]) => `
+<div class="mb-2"><div class="row between text-xs"><span>${s}</span><span>${fmtUSD(v)}</span></div>
+<div class="bar-track mt-1"><div class="bar-fill" style="width:${(v/max*100).toFixed(0)}%;${s==='Cancelled'?'background:#9e9e9e;':s==='Delivered'?'background:#1a1a1a;':''}"></div></div></div>`).join('');
+
+const pay = {};
+rows.forEach(r => {
+if (PENDING_STATUS.includes(r.status)) pay[r.pay] = (pay[r.pay]||0) + r.price;
+});
+const payEntries = Object.entries(pay).sort((a,b)=>b[1]-a[1]);
+document.getElementById('payTable').innerHTML = payEntries.length ?
+`<table class="shell-table"><thead><tr><th class="text-left">Pagamento</th><th class="text-right">Receita pendente</th></tr></thead><tbody>${payEntries.map(([p,v]) => `<tr><td>${p}</td><td class="text-right">${fmtUSD(v)}</td></tr>`).join('')}</tbody></table>` :
+`<p class="muted-empty">Nenhuma receita pendente com os filtros atuais.</p>`;
+
+const pendTotal = rows.filter(r => PENDING_STATUS.includes(r.status)).reduce((a,b)=>a+b.price,0);
+const cancelled = rows.filter(r => r.status === 'Cancelled').reduce((a,b)=>a+b.price,0);
+const delivered = rows.filter(r => r.status === 'Delivered').reduce((a,b)=>a+b.price,0);
+const topPay = payEntries[0] ? payEntries[0][0] : 'nenhuma';
+document.getElementById('insight4').textContent =
+`Receita pendente: ${fmtUSD(pendTotal)}. Cancelada: ${fmtUSD(cancelled)}. Entregue: ${fmtUSD(delivered)}. Maior parte da pendência está em ${topPay}.`;
+}
+
+function renderSellers(rows) {
+const map = {};
+rows.forEach(r => {
+map[r.seller] = map[r.seller] || { rev:0, qty:0 };
+map[r.seller].rev += r.price; map[r.seller].qty++;
+});
+const list = Object.entries(map).sort((a,b)=> b[1].rev - a[1].rev).slice(0,8);
+const el = document.getElementById('sellerRank');
+el.innerHTML = list.length ? `<ol class="rank-list">${list.map(([n,v],i)=>`<li><span>${i+1}. ${n}</span><span class="text-right">${fmtUSD(v.rev)} • ${v.qty} vendas</span></li>`).join('')}</ol>` : `<p class="muted-empty">Sem vendedores.</p>`;
+return list;
+}
+
+function renderStates(rows) {
+const map = {};
+rows.forEach(r => {
+map[r.state] = map[r.state] || { rev:0, qty:0 };
+map[r.state].rev += r.price; map[r.state].qty++;
+});
+const list = Object.entries(map).sort((a,b)=> b[1].rev - a[1].rev).slice(0,8);
+const el = document.getElementById('stateRank');
+el.innerHTML = list.length ? `<ol class="rank-list">${list.map(([s,v],i)=>`<li><span>${i+1}. ${s}</span><span class="text-right">${fmtUSD(v.rev)} • ${v.qty} un.</span></li>`).join('')}</ol>` : `<p class="muted-empty">Sem estados.</p>`;
+return list;
+}
+
+function renderSellersStatesInsight(sellerList, stateList) {
+if (!sellerList.length) return;
+const bestSeller = sellerList[0];
+const bestState = stateList[0];
+document.getElementById('insight1').dataset.sellers = `${bestSeller[0]} lidera com ${fmtUSD(bestSeller[1].rev)}`;
+}
+
+function renderScatter(rows) {
+const pts = rows.filter(r => r.date || true);
+const el = document.getElementById('scatter');
+if (!pts.length) {
+el.innerHTML = `<p class="muted-empty">Sem dados para dispersão.</p>`;
+return;
+}
+const W = 720, H = 300, P = 44;
+const maxK = Math.max(...pts.map(p=>p.km), 1000);
+const maxP = Math.max(...pts.map(p=>p.price), 1000);
+const years = uniq(pts.map(p=>p.year));
+const YEAR_COLORS = ['#D5001C','#D4AF37','#FFFFFF','#7FB3FF','#8BD3A0','#FF9A3C'];
+const colorOf = y => YEAR_COLORS[years.indexOf(y) % YEAR_COLORS.length];
+const dots = pts.map(p => {
+const x = P + (p.km/maxK)*(W-P*2);
+const y = H - P - (p.price/maxP)*(H-P*2);
+return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${colorOf(p.year)}" stroke="#FFFFFF" stroke-width="1" opacity="0.92"><title>${p.model} ${p.year} • ${fmtUSD(p.price)} • ${fmtNum(p.km)} km</title></circle>`;
+}).join('');
+const legend = years.map(y => `<span class="hint mr-3" style="color:#FFFFFF;"><span class="legend-dot" style="background:${colorOf(y)}"></span>${y}</span>`).join('');
+el.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Preço x quilometragem"><line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="#ccc"/><line x1="${P}" y1="${P}" x2="${P}" y2="${H-P}" stroke="#ccc"/><text x="${W-P}" y="${H-P+30}" text-anchor="end">Quilometragem (km)</text><text x="${P}" y="${P-10}">Preço (US$)</text>${dots}</svg><div class="mt-2">${legend}</div>`;
+}
+
+function renderAvgYear(rows) {
+const map = {};
+rows.forEach(r => { map[r.year] = map[r.year] || {sum:0,n:0}; map[r.year].sum+=r.price; map[r.year].n++; });
+const list = Object.keys(map).map(Number).sort((a,b)=>a-b);
+const el = document.getElementById('avgYear');
+if (!list.length) { el.innerHTML = `<p class="muted-empty">Sem dados.</p>`; return list; }
+el.innerHTML = `<table class="shell-table"><thead><tr><th class="text-left">Ano-modelo</th><th class="text-right">Preço médio</th><th class="text-right">Vendas</th></tr></thead><tbody>${list.map(y=>`<tr><td>${y}</td><td class="text-right">${fmtUSD(map[y].sum/map[y].n)}</td><td class="text-right">${map[y].n}</td></tr>`).join('')}</tbody></table>`;
+return list;
+}
+
+function renderModelRank(rows) {
+const map = {};
+rows.forEach(r => { map[r.model] = map[r.model] || {rev:0,qty:0}; map[r.model].rev += r.price; map[r.model].qty++; });
+const total = rows.reduce((a,b)=>a+b.price,0) || 1;
+const list = Object.entries(map).sort((a,b)=> b[1].rev - a[1].rev).slice(0,10);
+const el = document.getElementById('modelRank');
+el.innerHTML = list.length ? `<ol class="rank-list">${list.map(([m,v],i)=>`<li><span>${i+1}. ${m}</span><span class="text-right">${fmtUSD(v.rev)} • ${fmtPct(v.rev/total)}</span></li>`).join('')}</ol>` : `<p class="muted-empty">Sem modelos.</p>`;
+return list;
+}
+
+function render() {
+const rows = filtered();
+const withDate = periodFiltered(rows);
+document.getElementById('filterCount').textContent = countActive() ? `${countActive()} filtro(s) ativo(s)` : 'Sem filtros ativos';
+renderKPIs(rows);
+renderHeatmap(rows);
+renderYearChart(rows);
+renderPopularCities(rows);
+renderStatus(rows);
+const sellers = renderSellers(rows);
+const states = renderStates(rows);
+renderScatter(rows);
+const avgYears = renderAvgYear(rows);
+const models = renderModelRank(rows);
+const total = rows.reduce((a,b)=>a+b.price,0) || 1;
+const avgUnits = rows.length ? rows.reduce((a,b)=>a+b.km,0)/rows.length : 0;
+document.getElementById('insight6').textContent =
+`Quilometragem média da seleção: ${fmtNum(avgUnits)} km. Modelo líder por receita: ${models[0] ? models[0][0] + ' (' + fmtPct(models[0][1].rev/total) + ' da receita)' : 'nenhum'}.`;
+if (sellers.length) {
+document.getElementById('insight1').dataset.s = '1';
+}
+}
+
+document.getElementById('btnReset').addEventListener('click', () => {
+Object.keys(sel).forEach(k => sel[k] = 'all');
+['fModel','fYear','fCity','fPay','fPeriod'].forEach(id => document.getElementById(id).value = 'all');
+render();
+window.skipUI.toast('Filtros limpos.', { type: 'success' });
+});
+
+document.getElementById('btnPrint').addEventListener('click', () => {
+window.print();
+});
+
+document.getElementById('btnCopy').addEventListener('click', () => {
+const rows = filtered();
+const rev = rows.reduce((a,b)=>a+b.price,0);
+const txt = `Vendas Porsche — ${rows.length} vendas • Receita ${fmtUSD(rev)} • Ticket médio ${fmtUSD(rows.length? rev/rows.length:0)}. Data de referência 15/11/2026.`;
+navigator.clipboard.writeText(txt).then(() => {
+window.skipUI.toast('Resumo copiado para a área de transferência.', { type: 'success' });
+}).catch(() => {
+window.skipUI.toast('Não foi possível copiar.', { type: 'error' });
+});
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+populateFilters();
+render();
+initHeroCarousel();
+});
+
+function initHeroCarousel() {
+const slidesEl = document.getElementById('heroSlides');
+const dotsEl = document.getElementById('heroDots');
+const banner = document.querySelector('.hero-banner');
+const prevBtn = document.getElementById('heroPrev');
+const nextBtn = document.getElementById('heroNext');
+const captionEl = document.getElementById('heroCaption');
+const INTERVAL = 15000;
+const imgs = [...slidesEl.querySelectorAll('.hero-slide')];
+const SLIDE_CAPTIONS = imgs.map((img, i) => img.dataset.caption || img.alt || ('Veículo ' + (i + 1)));
+let current = 0;
+let timer = null;
+
+dotsEl.innerHTML = imgs.map((_, i) => `<button type="button" class="hero-dot" role="tab" aria-label="${SLIDE_CAPTIONS[i]}" aria-selected="${i === 0}" data-index="${i}"></button>`).join('');
+const dots = [...dotsEl.querySelectorAll('.hero-dot')];
+
+
+function show(i) {
+current = (i + imgs.length) % imgs.length;
+imgs.forEach((img, k) => img.classList.toggle('is-active', k === current));
+dots.forEach((d, k) => d.setAttribute('aria-selected', String(k === current)));
+captionEl.textContent = SLIDE_CAPTIONS[current];
+}
+function start() { stop(); if (imgs.length > 1) timer = setInterval(() => show(current + 1), INTERVAL); }
+function stop() { if (timer) clearInterval(timer); timer = null; }
+
+prevBtn.addEventListener('click', () => { show(current - 1); start(); });
+nextBtn.addEventListener('click', () => { show(current + 1); start(); });
+dots.forEach(d => d.addEventListener('click', () => { show(Number(d.dataset.index)); start(); }));
+[prevBtn, nextBtn, ...dots].forEach(el => {
+el.addEventListener('focus', stop);
+el.addEventListener('blur', start);
+});
+banner.addEventListener('mouseenter', stop);
+banner.addEventListener('mouseleave', start);
+show(0);
+start();
+}
+</script>
+</main>
+</body>
+</html>
