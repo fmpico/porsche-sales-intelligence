@@ -33,21 +33,34 @@ Todas as seções e indicadores reagem aos filtros ao mesmo tempo.
 1. **Quais os principais modelos vendidos por cidade?**
    Heatmap de unidades por cidade e modelo, com ranking dos modelos líderes em cada cidade.
 
+   Essa pergunta ajuda a equipe de vendas a criar um plano de ação para ampliar a divulgação e as vendas nos estados com menor volume, com foco em campanhas         regionais, parcerias com revendedores locais e metas por estado, e manter o acompanhamento da equipe nos estados de maior concentração.
+
 2. **Qual ano-modelo mais foi vendido em um período?**
    Unidades vendidas por ano-modelo, respeitando o filtro de período.
+
+   Essa pergunta ajuda a concentrar demonstrações e atendimento nos modelos que empatam em volume e reservar a abordagem de alto ticket para os 911 de maior         preço.
 
 3. **Quais carros são populares em cada cidade?**
    Top 3 modelos por cidade, com volume de unidades e receita.
 
-4. **Quanto da receita está travado em pedidos não entregues, e por quê?**
+   Essa pergunta ajuda a equipe de vendas a criar um plano de ação para ampliar a divulgação e as vendas nos estados com menor volume, com foco em campanhas         regionais, parcerias com revendedores locais e metas por estado, e manter o acompanhamento da equipe nos estados de maior concentração.
+   
+
+5. **Quanto da receita está travado em pedidos não entregues, e por quê?**
    Receita por status de entrega e cruzamento com a forma de pagamento.
    Pendente = todos os status exceto Delivered e Cancelled.
 
-5. **Quais vendedores e estados concentram o melhor desempenho?**
+   Para a equipe de vendas criar uma rotina semanal de acompanhamento dessas 37 vendas, priorizando as pendentes, e revisar os motivos dos cancelamentos.
+
+7. **Quais vendedores e estados concentram o melhor desempenho?**
    Ranking de vendedores e de estados por receita e quantidade de vendas.
 
-6. **Como o preço se comporta com o ano-modelo e a quilometragem, e quais modelos geram mais receita?**
+   Para verificar a perfomance das equipes de vendas.
+
+8. **Como o preço se comporta com o ano-modelo e a quilometragem, e quais modelos geram mais receita?**
    Dispersão de preço e quilometragem por ano-modelo, preço médio por ano-modelo e ranking de modelos por receita.
+
+   Para acompanhar a perfomance de vendas por ano-modelo, quilometragem e receitas.
 
 ## Indicadores principais
 
